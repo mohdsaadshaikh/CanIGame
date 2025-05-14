@@ -1,6 +1,6 @@
-import { app, shell, BrowserWindow, ipcMain } from 'electron'
+import { electronApp, is, optimizer } from '@electron-toolkit/utils'
+import { app, BrowserWindow, shell } from 'electron'
 import { join } from 'path'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 
 function createWindow(): void {
@@ -50,7 +50,13 @@ app.whenReady().then(() => {
   })
 
   // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  ;(async function () {
+    const data = await fetch(
+      `https://api.rawg.io/api/games?key=${import.meta.env.MAIN_VITE_RAWG_API_KEY}&page_size=10`
+    )
+    const json = await data.json()
+    console.log(json)
+  })()
 
   createWindow()
 
