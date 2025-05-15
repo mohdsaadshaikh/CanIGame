@@ -1,7 +1,20 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { app, BrowserWindow, shell } from 'electron'
+import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { join } from 'path'
 import icon from '../../resources/icon.png?asset'
+import si from 'systeminformation'
+import { HardwareInfo } from '../types/index'
+
+async function getHardwareInfo(): Promise<HardwareInfo> {
+  const cpu = await si.cpu()
+  const mem = await si.mem()
+  const gpu = await si.graphics()
+  return {
+    cpu: cpu.brand,
+    ram: mem.total / 1024 / 1024 / 1024, // GB mein
+    gpu: gpu.controllers[0]?.model || 'Unknown'
+  }
+}
 
 function createWindow(): void {
   // Create the browser window.
@@ -50,13 +63,18 @@ app.whenReady().then(() => {
   })
 
   // IPC test
-  ;(async function () {
-    const data = await fetch(
-      `https://api.rawg.io/api/games?key=${import.meta.env.MAIN_VITE_RAWG_API_KEY}&page_size=10`
-    )
-    const json = await data.json()
-    console.log(json)
-  })()
+  // ;(async function () {
+  //   const data = await fetch(
+  //     `https://api.rawg.io/api/games?key=${import.meta.env.MAIN_VITE_RAWG_API_KEY}&page_size=10`
+  //   )
+  //   const json = await data.json()
+  //   console.log(json)
+  // })()
+
+  ipcMain.handle('get-hardware-info', async () => {
+    const hardwareInfo = await getHardwareInfo()
+    return hardwareInfo
+  })
 
   createWindow()
 
