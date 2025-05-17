@@ -26,6 +26,7 @@
     "@mantine/core": "^8.0.0",
     "@mantine/hooks": "^8.0.0",
     "electron-updater": "^6.3.9",
+    "react-router-dom": "^7.6.0",
     "systeminformation": "^5.25.11"
   },
   "devDependencies": {

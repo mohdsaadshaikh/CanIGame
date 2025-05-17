@@ -1,5 +1,6 @@
-import { Button } from '@mantine/core'
 import { useEffect } from 'react'
+import { HashRouter, Route, Routes } from 'react-router-dom'
+import AppLayout from './layout'
 
 function App(): React.JSX.Element {
   useEffect(() => {
@@ -7,8 +8,11 @@ function App(): React.JSX.Element {
   }, [])
   return (
     <>
-      <h1>Welcome to electron app</h1>
-      <Button>hello</Button>
+      <HashRouter>
+        <Routes>
+          <Route path="/" element={<AppLayout />} />
+        </Routes>
+      </HashRouter>
     </>
   )
 }
