@@ -1,8 +1,11 @@
 import Logo from '@renderer/components/Logo'
 import { AppShell, Burger, Flex } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
+import { Outlet } from 'react-router-dom'
+import { Suspense } from 'react'
+import { Loader } from '@mantine/core'
 
-export function Demo(): React.JSX.Element {
+const AppLayout = (): React.JSX.Element => {
   const [opened, { toggle }] = useDisclosure()
 
   return (
@@ -24,15 +27,18 @@ export function Demo(): React.JSX.Element {
 
       <AppShell.Navbar p="md"></AppShell.Navbar>
 
-      <AppShell.Main>Main</AppShell.Main>
+      <AppShell.Main>
+        <Suspense
+          fallback={
+            <Flex h="80vh" w="100%" justify="center" align="center">
+              <Loader size={30} />
+            </Flex>
+          }
+        >
+          <Outlet />
+        </Suspense>
+      </AppShell.Main>
     </AppShell>
-  )
-}
-const AppLayout = (): React.JSX.Element => {
-  return (
-    <div>
-      <Demo />
-    </div>
   )
 }
 
