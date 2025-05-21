@@ -1,9 +1,8 @@
-import Logo from '@renderer/components/Logo'
-import { AppShell, Burger, Flex } from '@mantine/core'
+import { AppShell, Flex, Loader } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { Outlet } from 'react-router-dom'
+import Header from '../components/Header'
 import { Suspense } from 'react'
-import { Loader } from '@mantine/core'
+import { Outlet } from 'react-router-dom'
 
 const AppLayout = (): React.JSX.Element => {
   const [opened, { toggle }] = useDisclosure()
@@ -19,10 +18,7 @@ const AppLayout = (): React.JSX.Element => {
       padding="md"
     >
       <AppShell.Header>
-        <Flex align="center" h="100%" px="md">
-          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-          <Logo />
-        </Flex>
+        <Header opened={opened} toggle={toggle} />
       </AppShell.Header>
 
       <AppShell.Navbar p="md"></AppShell.Navbar>

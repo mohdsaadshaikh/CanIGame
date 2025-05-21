@@ -25,6 +25,8 @@
     "@electron-toolkit/utils": "^4.0.0",
     "@mantine/core": "^8.0.0",
     "@mantine/hooks": "^8.0.0",
+    "@mantine/spotlight": "^8.0.1",
+    "@tabler/icons-react": "^3.33.0",
     "electron-updater": "^6.3.9",
     "react-router-dom": "^7.6.0",
     "systeminformation": "^5.25.11"
