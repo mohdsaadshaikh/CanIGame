@@ -3,6 +3,7 @@ import { useDisclosure } from '@mantine/hooks'
 import Header from '../components/Header'
 import { Suspense } from 'react'
 import { Outlet } from 'react-router-dom'
+import Sidebar from '@renderer/components/Sidebar'
 
 const AppLayout = (): React.JSX.Element => {
   const [opened, { toggle }] = useDisclosure()
@@ -21,7 +22,9 @@ const AppLayout = (): React.JSX.Element => {
         <Header opened={opened} toggle={toggle} />
       </AppShell.Header>
 
-      <AppShell.Navbar p="md"></AppShell.Navbar>
+      <AppShell.Navbar p="md">
+        <Sidebar />
+      </AppShell.Navbar>
 
       <AppShell.Main>
         <Suspense
