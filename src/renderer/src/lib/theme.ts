@@ -88,3 +88,10 @@ export const mantineTheme: MantineThemeOverride = createTheme({
     style: 'mantine'
   }
 })
+
+export const customSizes = {
+  '2xl': rem('48px'),
+  '3xl': rem('56px'),
+  '4xl': rem('64px'),
+  '5xl': rem('80px')
+}

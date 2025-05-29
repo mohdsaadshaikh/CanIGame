@@ -1,58 +1,35 @@
-import { useState } from 'react'
-import { Group, Select, ActionIcon, useMantineColorScheme, useMantineTheme } from '@mantine/core'
-import { IconSun, IconMoon, IconDeviceDesktop } from '@tabler/icons-react'
+import { ActionIcon, Group, Tooltip, useMantineColorScheme, useMantineTheme } from '@mantine/core'
+import { customSizes } from '@renderer/lib/theme'
+import { IconDeviceDesktop, IconMoon, IconSun } from '@tabler/icons-react'
 
 export const ThemeToggler: React.FC = () => {
   const { colorScheme, setColorScheme } = useMantineColorScheme()
   const theme = useMantineTheme()
 
-  const [selected, setSelected] = useState<string | null>(null)
-  const [showDropdown, setShowDropdown] = useState(true)
+  const themes = [
+    { value: 'light', icon: <IconSun size={24} />, label: 'Light' },
+    { value: 'dark', icon: <IconMoon size={24} />, label: 'Dark' },
+    { value: 'auto', icon: <IconDeviceDesktop size={24} />, label: 'Auto' }
+  ]
 
-  const handleSelect = (value: string | null) => {
-    if (!value) return
-    setSelected(value)
-    setColorScheme(value as 'light' | 'dark' | 'auto')
-    setShowDropdown(false)
-  }
-
-  const getIcon = (scheme: string | null) => {
-    switch (scheme) {
-      case 'light':
-        return <IconSun size={20} />
-      case 'dark':
-        return <IconMoon size={20} />
-      case 'auto':
-        return <IconDeviceDesktop size={20} />
-      default:
-        return <IconDeviceDesktop size={20} />
-    }
-  }
+  const isActive = (val: string): boolean =>
+    colorScheme === val || (val === 'auto' && colorScheme === 'auto')
 
   return (
-    <Group justify="center" mt="xl">
-      {showDropdown ? (
-        <Select
-          placeholder="Select theme"
-          data={[
-            { value: 'light', label: 'Light' },
-            { value: 'dark', label: 'Dark' },
-            { value: 'auto', label: 'Auto' }
-          ]}
-          value={selected}
-          onChange={handleSelect}
-          withinPortal
-        />
-      ) : (
-        <ActionIcon
-          variant="light"
-          color={theme.primaryColor}
-          size="lg"
-          onClick={() => setShowDropdown(true)}
-        >
-          {getIcon(selected)}
-        </ActionIcon>
-      )}
+    <Group gap="lg">
+      {themes.map((item) => (
+        <Tooltip label={item.label} key={item.value}>
+          <ActionIcon
+            onClick={() => setColorScheme(item.value as 'light' | 'dark' | 'auto')}
+            style={{ width: customSizes['3xl'], height: customSizes['3xl'] }}
+            variant={isActive(item.value) ? 'filled' : 'outline'}
+            color={theme.primaryColor}
+            radius="sm"
+          >
+            {item.icon}
+          </ActionIcon>
+        </Tooltip>
+      ))}
     </Group>
   )
 }

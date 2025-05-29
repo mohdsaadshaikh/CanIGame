@@ -1,4 +1,5 @@
-import { Container, Tabs, Text } from '@mantine/core'
+import { Card, Container, Tabs, Text } from '@mantine/core'
+import { ThemeToggler } from '@renderer/components/ThemeToggler'
 import { IconPalette } from '@tabler/icons-react'
 
 const Settings = (): React.JSX.Element => {
@@ -30,6 +31,17 @@ const Settings = (): React.JSX.Element => {
               Data
             </Tabs.Tab> */}
           </Tabs.List>
+          <Tabs.Panel value="appearance">
+            <Card className="gaming-card" withBorder padding="lg">
+              <Text fw={500} size="lg" mb="xs">
+                Theme & Visual Settings
+              </Text>
+              <Text c="dimmed" size="sm" mb="lg">
+                Customize the look and feel of your App
+              </Text>
+              <ThemeToggler />
+            </Card>
+          </Tabs.Panel>
         </Tabs>
       </Container>
     </>
