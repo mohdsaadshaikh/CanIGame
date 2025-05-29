@@ -6,7 +6,9 @@ import {
   IconHome,
   IconHomeFilled,
   IconInfoCircle,
-  IconInfoCircleFilled
+  IconInfoCircleFilled,
+  IconSettings,
+  IconSettingsFilled
 } from '@tabler/icons-react'
 
 export const links: NavItem[] = [
@@ -40,6 +42,14 @@ export const links: NavItem[] = [
     icon: {
       filled: IconInfoCircleFilled,
       outline: IconInfoCircle
+    }
+  },
+  {
+    label: 'Settings',
+    to: '/settings',
+    icon: {
+      filled: IconSettingsFilled,
+      outline: IconSettings
     }
   }
 ]
