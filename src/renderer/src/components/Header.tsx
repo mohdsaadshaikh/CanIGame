@@ -3,6 +3,7 @@ import React from 'react'
 import Logo from './Logo'
 import { Spotlight, spotlight } from '@mantine/spotlight'
 import { IconDashboard, IconFileText, IconHome, IconSearch } from '@tabler/icons-react'
+import { ThemeToggler } from './ThemeToggler'
 const actions = [
   {
     id: 'home',
@@ -48,6 +49,7 @@ const Header: React.FC<HeaderProps> = ({ opened, toggle }) => {
           placeholder: 'Search...'
         }}
       />
+      <ThemeToggler />
     </Flex>
   )
 }

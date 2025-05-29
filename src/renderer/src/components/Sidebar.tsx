@@ -20,7 +20,6 @@ const Sidebar: React.FC = (): React.JSX.Element => {
         leftSection={<IconComponent size={20} />}
         variant="light"
         style={{ marginBottom: 8 }}
-        color="#16A34A"
       />
     )
   })
