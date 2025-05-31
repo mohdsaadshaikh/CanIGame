@@ -1,7 +1,10 @@
-import { useEffect } from 'react'
+import { lazy, useEffect } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
+import LazyRoute from './components/LazyRoute'
 import AppLayout from './layout'
-import Settings from './screens/settings'
+
+// Delay loader for visible test
+const Settings = lazy(() => import('./screens/settings'))
 
 function App(): React.JSX.Element {
   useEffect(() => {
@@ -12,7 +15,14 @@ function App(): React.JSX.Element {
       <HashRouter>
         <Routes>
           <Route path="/" element={<AppLayout />}>
-            <Route path="/settings" element={<Settings />} />
+            <Route
+              path="/settings"
+              element={
+                <LazyRoute>
+                  <Settings />
+                </LazyRoute>
+              }
+            />
           </Route>
         </Routes>
       </HashRouter>

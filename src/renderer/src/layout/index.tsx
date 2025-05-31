@@ -1,9 +1,8 @@
-import { AppShell, Flex, Loader } from '@mantine/core'
+import { AppShell } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import Header from '../components/Header'
-import { Suspense } from 'react'
-import { Outlet } from 'react-router-dom'
 import Sidebar from '@renderer/components/Sidebar'
+import { Outlet } from 'react-router-dom'
+import Header from '../components/Header'
 
 const AppLayout = (): React.JSX.Element => {
   const [opened, { toggle }] = useDisclosure()
@@ -27,15 +26,7 @@ const AppLayout = (): React.JSX.Element => {
       </AppShell.Navbar>
 
       <AppShell.Main>
-        <Suspense
-          fallback={
-            <Flex h="80vh" w="100%" justify="center" align="center">
-              <Loader size={30} />
-            </Flex>
-          }
-        >
-          <Outlet />
-        </Suspense>
+        <Outlet />
       </AppShell.Main>
     </AppShell>
   )
