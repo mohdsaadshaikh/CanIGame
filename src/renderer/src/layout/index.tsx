@@ -9,7 +9,7 @@ const AppLayout = (): React.JSX.Element => {
 
   return (
     <AppShell
-      header={{ height: 75 }}
+      header={{ height: 60 }}
       navbar={{
         width: 250,
         breakpoint: 'sm',
@@ -17,7 +17,7 @@ const AppLayout = (): React.JSX.Element => {
       }}
       padding="md"
     >
-      <AppShell.Header>
+      <AppShell.Header withBorder={false}>
         <Header opened={opened} toggle={toggle} />
       </AppShell.Header>
 

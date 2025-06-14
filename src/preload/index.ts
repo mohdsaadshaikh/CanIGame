@@ -3,7 +3,9 @@ import { electronAPI } from '@electron-toolkit/preload'
 
 // Custom APIs for renderer
 const api = {
-  getHardwareInfo: () => ipcRenderer.invoke('get-hardware-info')
+  getHardwareInfo: () => ipcRenderer.invoke('get-hardware-info'),
+  windowControl: (action: 'minimize' | 'maximize' | 'close') =>
+    ipcRenderer.invoke('window-control', action)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

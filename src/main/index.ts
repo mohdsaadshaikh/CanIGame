@@ -16,13 +16,16 @@ async function getHardwareInfo(): Promise<HardwareInfo> {
   }
 }
 
+let mainWindow
+
 function createWindow(): void {
   // Create the browser window.
-  const mainWindow = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
     show: false,
     autoHideMenuBar: true,
+    frame: false,
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -92,6 +95,16 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+ipcMain.handle('window-control', (_event, action: 'minimize' | 'maximize' | 'close') => {
+  if (!mainWindow) return
+  if (action === 'minimize') mainWindow.minimize()
+  if (action === 'maximize') {
+    if (mainWindow.isMaximized()) mainWindow.unmaximize()
+    else mainWindow.maximize()
+  }
+  if (action === 'close') mainWindow.close()
 })
 
 // In this file you can include the rest of your app's specific main process

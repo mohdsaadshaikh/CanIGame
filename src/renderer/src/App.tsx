@@ -3,7 +3,6 @@ import { HashRouter, Route, Routes } from 'react-router-dom'
 import LazyRoute from './components/LazyRoute'
 import AppLayout from './layout'
 
-// Delay loader for visible test
 const Settings = lazy(() => import('./screens/settings'))
 
 function App(): React.JSX.Element {

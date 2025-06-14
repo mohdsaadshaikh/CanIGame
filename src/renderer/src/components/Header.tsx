@@ -1,6 +1,14 @@
-import { Burger, Flex, TextInput } from '@mantine/core'
+import { ActionIcon, Burger, Flex, TextInput } from '@mantine/core'
 import { Spotlight, spotlight } from '@mantine/spotlight'
-import { IconDashboard, IconFileText, IconHome, IconSearch } from '@tabler/icons-react'
+import {
+  IconDashboard,
+  IconFileText,
+  IconHome,
+  IconMinus,
+  IconSearch,
+  IconSquare,
+  IconX
+} from '@tabler/icons-react'
 import React from 'react'
 import Logo from './Logo'
 const actions = [
@@ -27,18 +35,24 @@ const actions = [
   }
 ]
 const Header: React.FC<HeaderProps> = ({ opened, toggle }) => {
+  const handleAction = (action: 'minimize' | 'maximize' | 'close'): void => {
+    window.api.windowControl(action)
+  }
+
   return (
-    <Flex align="center" h="100%" px="md" gap="70px">
+    <Flex align="center" px="xs" justify="space-between" style={{ WebkitAppRegion: 'drag' }}>
       <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-      <Logo />
-      <TextInput
-        onClick={spotlight.open}
-        placeholder="Search..."
-        leftSection={<IconSearch size={16} />}
-        radius="sm"
-        size="md"
-        style={{ width: '500px' }}
-      />
+      <Flex gap="30px" align="center">
+        <Logo />
+        <TextInput
+          onClick={spotlight.open}
+          placeholder="Search..."
+          leftSection={<IconSearch size={16} />}
+          radius="sm"
+          size="xs"
+          style={{ width: '400px' }}
+        />
+      </Flex>
       <Spotlight
         actions={actions}
         nothingFound="Nothing found..."
@@ -48,7 +62,45 @@ const Header: React.FC<HeaderProps> = ({ opened, toggle }) => {
           placeholder: 'Search...'
         }}
       />
-      {/* <ThemeToggler /> */}
+      <Flex gap={8} style={{ WebkitAppRegion: 'no-drag', alignItems: 'center' }}>
+        <ActionIcon
+          variant="subtle"
+          color="gray"
+          size="lg"
+          radius="xl"
+          aria-label="Minimize"
+          onClick={() => handleAction('minimize')}
+          style={{ transition: 'background 0.2s', ':hover': { background: '#e0e0e0' } }}
+        >
+          <IconMinus size={18} stroke={2} />
+        </ActionIcon>
+        <ActionIcon
+          variant="subtle"
+          color="gray"
+          size="lg"
+          radius="xl"
+          aria-label="Maximize"
+          onClick={() => handleAction('maximize')}
+          style={{ transition: 'background 0.2s', ':hover': { background: '#e0e0e0' } }}
+        >
+          <IconSquare size={18} stroke={2} />
+        </ActionIcon>
+        <ActionIcon
+          variant="light"
+          color="red"
+          size="lg"
+          radius="xl"
+          aria-label="Close"
+          onClick={() => handleAction('close')}
+          style={{
+            transition: 'background 0.2s',
+            ':hover': { background: '#ffdddd' },
+            color: '#d7263d'
+          }}
+        >
+          <IconX size={18} stroke={2.5} />
+        </ActionIcon>
+      </Flex>
     </Flex>
   )
 }

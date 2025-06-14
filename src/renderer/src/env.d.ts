@@ -13,3 +13,11 @@ type NavItem = {
     outline: React.FC<{ size?: number }>
   }
 }
+
+declare global {
+  interface Window {
+    api: {
+      windowControl: (action: 'minimize' | 'maximize' | 'close') => void
+    }
+  }
+}
