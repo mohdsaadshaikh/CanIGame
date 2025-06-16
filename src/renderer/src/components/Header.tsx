@@ -50,7 +50,7 @@ const Header: React.FC<HeaderProps> = ({ opened, toggle }) => {
           leftSection={<IconSearch size={16} />}
           radius="sm"
           size="xs"
-          style={{ width: '400px' }}
+          style={{ width: '600px' }}
         />
       </Flex>
       <Spotlight

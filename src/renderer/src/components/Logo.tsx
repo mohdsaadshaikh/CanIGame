@@ -4,10 +4,10 @@ import logoIcon from '../assets/imgs/logo-icon.png'
 
 const Logo = (): React.JSX.Element => {
   return (
-    <Flex align="center" gap="4px">
-      <Image src={logoIcon} alt="CANIGAME Logo" width={50} height={50}></Image>
+    <Flex align="center" gap="4px" mt="6px">
+      <Image src={logoIcon} alt="CANIGAME Logo" width={30} height={45}></Image>
       <Text
-        fz="h2"
+        fz="h3"
         fw={900}
         style={{
           fontFamily: 'Audiowide',

@@ -16,7 +16,7 @@ async function getHardwareInfo(): Promise<HardwareInfo> {
   }
 }
 
-let mainWindow
+let mainWindow: BrowserWindow
 
 function createWindow(): void {
   // Create the browser window.
