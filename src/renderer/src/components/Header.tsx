@@ -40,9 +40,15 @@ const Header: React.FC<HeaderProps> = ({ opened, toggle }) => {
   }
 
   return (
-    <Flex align="center" px="xs" justify="space-between" style={{ WebkitAppRegion: 'drag' }}>
+    <Flex
+      align="center"
+      mt="xs"
+      px="xs"
+      justify="space-between"
+      style={{ WebkitAppRegion: 'drag' }}
+    >
       <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-      <Flex gap="30px" align="center">
+      <Flex gap="50px" align="center" ml="md">
         <Logo />
         <TextInput
           onClick={spotlight.open}
@@ -50,7 +56,7 @@ const Header: React.FC<HeaderProps> = ({ opened, toggle }) => {
           leftSection={<IconSearch size={16} />}
           radius="sm"
           size="xs"
-          style={{ width: '600px' }}
+          style={{ width: '500px' }}
         />
       </Flex>
       <Spotlight

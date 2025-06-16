@@ -9,7 +9,7 @@ const AppLayout = (): React.JSX.Element => {
 
   return (
     <AppShell
-      header={{ height: 60 }}
+      header={{ height: 70 }}
       navbar={{
         width: 250,
         breakpoint: 'sm',

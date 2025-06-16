@@ -35,17 +35,29 @@ export const mantineTheme: MantineThemeOverride = createTheme({
     '3xl': rem('32px')
   },
   colors: {
+    // greenMint: [
+    //   '#edfdf3',
+    //   '#daf8e5',
+    //   '#aff1c7',
+    //   '#82eba7',
+    //   '#5fe58c',
+    //   '#4ae27b',
+    //   '#3ee071',
+    //   '#31c760',
+    //   '#27b154',
+    //   '#16a34a'
+    // ]
     greenMint: [
-      '#edfdf3',
-      '#daf8e5',
-      '#aff1c7',
-      '#82eba7',
-      '#5fe58c',
-      '#4ae27b',
-      '#3ee071',
-      '#31c760',
-      '#27b154',
-      '#16a34a'
+      '#e1fff5',
+      '#cbffec',
+      '#9affd8',
+      '#64ffc3',
+      '#3affb1',
+      '#21ffa6',
+      '#00ff9c',
+      '#00e38a',
+      '#00ca79',
+      '#00af66'
     ]
   },
   primaryColor: 'greenMint',
