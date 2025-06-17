@@ -37,7 +37,8 @@ const Settings = (): React.JSX.Element => {
                 Theme & Visual Settings
               </Text>
               <Text c="dimmed" size="sm" mb="lg">
-                Customize the look and feel of your App
+                Customize the look and feel of your App (Dark Mode is better for gaming and visual
+                comfort)
               </Text>
               <ThemeToggler />
             </Card>

@@ -1,0 +1,16 @@
+[33m098687f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m Refactor Header and Sidebar components for improved layout and navigation; update theme colors
+[33m31effad[m Refactor the logo
+[33mcf3962b[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m added custom titlebar
+[33m16a5216[m Implement lazy loading for screens
+[33m300569b[m Refactor ThemeToggler component and integrate it into the settings page
+[33m0df9b51[m added setting page
+[33mcd9d1d2[m Add theme toggler and custom Mantine theme configuration
+[33md304d77[m Sidebar designed
+[33m7a9c3d2[m added search with spotlight
+[33mb46d5eb[m added lazy loading
+[33m1439fdf[m configured layout with appshell
+[33mb5dd54c[m added custom fonts and create a logo component
+[33m20f25ce[m add react-router-dom
+[33m2234227[m implement hardware info
+[33m635af04[m setup api
+[33md1aee09[m configured electron and mantine
