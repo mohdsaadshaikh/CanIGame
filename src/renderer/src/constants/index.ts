@@ -22,7 +22,7 @@ export const links: NavItem[] = [
   },
   {
     label: 'Explore',
-    to: '/games',
+    to: '/explore',
     icon: {
       filled: IconCompassFilled,
       outline: IconCompass
@@ -30,7 +30,7 @@ export const links: NavItem[] = [
   },
   {
     label: 'Wishlist',
-    to: '/wishList',
+    to: '/wishlist',
     icon: {
       filled: IconHeartFilled,
       outline: IconHeart
