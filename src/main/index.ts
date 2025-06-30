@@ -57,8 +57,7 @@ async function getHardwareInfo(): Promise<HardwareInfo> {
       memory: memoryInfo,
       gpu: gpuInfo,
       os: osDetails,
-      system: systemInfo,
-      timestamp: Date.now()
+      system: systemInfo
     }
   } catch (error) {
     console.error('Error gathering hardware information:', error)

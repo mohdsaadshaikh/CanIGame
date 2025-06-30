@@ -21,7 +21,6 @@ export interface MemoryInfo {
 export interface GPUInfo {
   vendor: string
   model: string
-
   vram: number
 }
 
@@ -42,5 +41,4 @@ export interface HardwareInfo {
   gpu: GPUInfo[]
   os: OSInfo
   system: SystemInfo
-  timestamp: number
 }
