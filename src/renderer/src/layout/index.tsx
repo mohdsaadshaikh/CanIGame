@@ -21,7 +21,7 @@ const AppLayout = (): React.JSX.Element => {
         <Header opened={opened} toggle={toggle} />
       </AppShell.Header>
 
-      <AppShell.Navbar p="md">
+      <AppShell.Navbar p="md" withBorder={false}>
         <Sidebar />
       </AppShell.Navbar>
 
