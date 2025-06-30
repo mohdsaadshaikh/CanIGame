@@ -22,11 +22,15 @@ const AppLayout = (): React.JSX.Element => {
       </AppShell.Header>
 
       <AppShell.Navbar p="md" withBorder={false}>
-        <Sidebar />
+        <div style={{ fontFamily: 'OrbitronExtraBold' }}>
+          <Sidebar />
+        </div>
       </AppShell.Navbar>
 
       <AppShell.Main>
-        <Outlet />
+        <div style={{ fontFamily: 'Russo One' }}>
+          <Outlet />
+        </div>
       </AppShell.Main>
     </AppShell>
   )
