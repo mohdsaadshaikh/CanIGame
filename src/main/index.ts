@@ -4,6 +4,7 @@ import { join } from 'path'
 import si from 'systeminformation'
 import icon from '../../resources/icon.png'
 import { HardwareInfo } from '../types/index'
+import windowStateKeeper from 'electron-window-state'
 
 async function getHardwareInfo(): Promise<HardwareInfo> {
   try {
@@ -66,11 +67,16 @@ async function getHardwareInfo(): Promise<HardwareInfo> {
 }
 
 let mainWindow: BrowserWindow
+let mainWindowState: windowStateKeeper.State
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    x: mainWindowState.x,
+    y: mainWindowState.y,
+    width: mainWindowState.width,
+    height: mainWindowState.height,
+    minWidth: 800,
+    minHeight: 600,
     show: false,
     autoHideMenuBar: true,
     frame: false,
@@ -81,6 +87,8 @@ function createWindow(): void {
       sandbox: false
     }
   })
+
+  mainWindowState.manage(mainWindow)
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
@@ -113,6 +121,10 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
+  mainWindowState = windowStateKeeper({
+    defaultWidth: 1000,
+    defaultHeight: 800
+  })
 
   // IPC test
   // ;(async function () {
@@ -125,7 +137,6 @@ app.whenReady().then(() => {
 
   ipcMain.handle('get-hardware-info', async () => {
     const hardwareInfo = await getHardwareInfo()
-    // console.log(formatHardwareInfo(hardwareInfo))
     return hardwareInfo
   })
 
