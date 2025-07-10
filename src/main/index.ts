@@ -1,70 +1,10 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { join } from 'path'
-import si from 'systeminformation'
 import icon from '../../resources/icon.png'
-import { HardwareInfo } from '../types/index'
 import windowStateKeeper from 'electron-window-state'
-
-async function getHardwareInfo(): Promise<HardwareInfo> {
-  try {
-    const [cpu, memory, graphics, osInfo, system] = await Promise.all([
-      si.cpu(),
-      si.mem(),
-      si.graphics(),
-      si.osInfo(),
-      si.system()
-    ])
-
-    const cpuInfo = {
-      brand: cpu.brand || 'Unknown',
-      manufacturer: cpu.manufacturer || 'Unknown',
-      model: cpu.model || 'Unknown',
-      cores: cpu.cores || 0,
-      physicalCores: cpu.physicalCores || 0,
-      processors: cpu.processors || 1,
-      speed: cpu.speed || 0,
-      speedMax: cpu.speedMax || 0,
-      speedMin: cpu.speedMin || 0
-    }
-
-    const memoryInfo = {
-      total: Math.round((memory.total / 1024 / 1024 / 1024) * 100) / 100,
-      free: Math.round((memory.free / 1024 / 1024 / 1024) * 100) / 100,
-      used: Math.round((memory.used / 1024 / 1024 / 1024) * 100) / 100,
-      active: Math.round((memory.active / 1024 / 1024 / 1024) * 100) / 100,
-      available: Math.round((memory.available / 1024 / 1024 / 1024) * 100) / 100
-    }
-
-    const gpuInfo = graphics.controllers.map((controller) => ({
-      vendor: controller.vendor || 'Unknown',
-      model: controller.model || 'Unknown',
-      vram: controller.vram || 0
-    }))
-
-    const osDetails = {
-      platform: osInfo.platform || 'Unknown',
-      hostname: osInfo.hostname || 'Unknown'
-    }
-
-    const systemInfo = {
-      manufacturer: system.manufacturer || 'Unknown',
-      model: system.model || 'Unknown',
-      version: system.version || 'Unknown'
-    }
-
-    return {
-      cpu: cpuInfo,
-      memory: memoryInfo,
-      gpu: gpuInfo,
-      os: osDetails,
-      system: systemInfo
-    }
-  } catch (error) {
-    console.error('Error gathering hardware information:', error)
-    throw new Error('Failed to retrieve hardware information')
-  }
-}
+import { getHardwareInfo } from './services/hardwareInfo'
+import { handleWindowControl } from './services/windowControl'
 
 let mainWindow: BrowserWindow
 let mainWindowState: windowStateKeeper.State
@@ -121,6 +61,7 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
+
   mainWindowState = windowStateKeeper({
     defaultWidth: 1000,
     defaultHeight: 800
@@ -134,11 +75,6 @@ app.whenReady().then(() => {
   //   const json = await data.json()
   //   console.log(json)
   // })()
-
-  ipcMain.handle('get-hardware-info', async () => {
-    const hardwareInfo = await getHardwareInfo()
-    return hardwareInfo
-  })
 
   createWindow()
 
@@ -158,15 +94,11 @@ app.on('window-all-closed', () => {
   }
 })
 
-ipcMain.handle('window-control', (_event, action: 'minimize' | 'maximize' | 'close') => {
-  if (!mainWindow) return
-  if (action === 'minimize') mainWindow.minimize()
-  if (action === 'maximize') {
-    if (mainWindow.isMaximized()) mainWindow.unmaximize()
-    else mainWindow.maximize()
-  }
-  if (action === 'close') mainWindow.close()
+ipcMain.handle('window-control', (_event, action) => {
+  handleWindowControl(mainWindow, action)
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+ipcMain.handle('get-hardware-info', async () => {
+  const hardwareInfo = await getHardwareInfo()
+  return hardwareInfo
+})

@@ -24,16 +24,23 @@ import {
 } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import { HardwareInfo } from '../../../../types'
+import { useHardwareInfo } from '@renderer/hooks/useHardwareInfo'
 
 const AboutPC = (): React.JSX.Element => {
-  const [hardwareInfo, setHardwareInfo] = useState<HardwareInfo | null>(null)
+  // const [hardwareInfo, setHardwareInfo] = useState<HardwareInfo | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const [hardwareInfo, setHardwareInfo] = useHardwareInfo<HardwareInfo | null>(
+    'hardware-info',
+    null
+  )
 
   const fetchHardwareInfo = async (): Promise<void> => {
     try {
       setLoading(true)
       const info = await window.api.getHardwareInfo()
+      console.log(info)
       setHardwareInfo(info)
       setError(null)
     } catch (err) {
@@ -45,7 +52,7 @@ const AboutPC = (): React.JSX.Element => {
   }
 
   useEffect(() => {
-    fetchHardwareInfo()
+    !hardwareInfo ? fetchHardwareInfo() : setLoading(false)
   }, [])
 
   const formatBytes = (bytes: number): string => `${bytes.toFixed(2)} GB`
@@ -55,11 +62,11 @@ const AboutPC = (): React.JSX.Element => {
     return (
       <Container size="xl" py="md">
         <Stack gap="xl">
-          <Skeleton height={60} />
+          <Skeleton height={60} radius="md" />
           <Grid>
-            {[...Array(6)].map((_, i) => (
-              <Grid.Col key={i} span={{ base: 12, sm: 6, lg: 4 }}>
-                <Skeleton height={200} />
+            {[...Array(4)].map((_, i) => (
+              <Grid.Col key={i} span={12}>
+                <Skeleton height={200} width="100%" radius="md" />
               </Grid.Col>
             ))}
           </Grid>
@@ -108,7 +115,7 @@ const AboutPC = (): React.JSX.Element => {
         </Box>
 
         <Stack gap="md">
-          <Card shadow="md" radius="lg" withBorder>
+          <Card shadow="md" radius="md" withBorder>
             <Stack gap="md">
               <Group gap="sm">
                 <IconDeviceDesktop size={24} />
@@ -178,7 +185,7 @@ const AboutPC = (): React.JSX.Element => {
           </Card>
           <Grid>
             <Grid.Col span={12}>
-              <Card shadow="md" radius="lg" withBorder>
+              <Card shadow="md" radius="md" withBorder>
                 <Stack gap="md">
                   <Group justify="space-between" align="center">
                     <Group gap="sm">
@@ -264,7 +271,7 @@ const AboutPC = (): React.JSX.Element => {
           </Grid>
           <Stack gap="md">
             {hardwareInfo.gpu.map((gpu, index) => (
-              <Card key={index} shadow="md" radius="lg" withBorder>
+              <Card key={index} shadow="md" radius="md" withBorder>
                 <Stack gap="md">
                   <Group justify="space-between" align="center">
                     <Group gap="sm">
@@ -332,7 +339,7 @@ const AboutPC = (): React.JSX.Element => {
           </Stack>
           <Grid>
             <Grid.Col span={12}>
-              <Card shadow="md" radius="lg" withBorder>
+              <Card shadow="md" radius="md" withBorder>
                 <Stack gap="md">
                   <Group justify="space-between" align="center">
                     <Group gap="sm">
