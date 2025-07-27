@@ -38,6 +38,15 @@ export interface Game {
   short_screenshots: Screenshot[]
 }
 
+export interface GameCardInfo {
+  id: number
+  name: string
+  background_image: string
+  rating: number
+  released: string
+  genres: Genre[]
+}
+
 export interface Rating {
   id: number
   title: string
