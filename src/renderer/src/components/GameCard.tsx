@@ -1,16 +1,9 @@
 import { Badge, Box, Card, Group, Image, Stack, Text } from '@mantine/core'
-import {
-  IconBrandWindows,
-  IconBrandXbox,
-  IconCalendar,
-  IconDeviceNintendo,
-  IconPlaystationSquare,
-  IconStar
-} from '@tabler/icons-react'
+import { getUniquePlatformTypes, mapPlatformIcons } from '@renderer/utils/platform-utils'
+import { IconCalendar, IconStar } from '@tabler/icons-react'
 import { JSX, useState } from 'react'
 import { Game } from 'src/types/games'
 
-// Proper interface for GameCard props
 interface GameCardProps {
   game: Game
   viewMode?: 'grid' | 'list'
@@ -20,41 +13,8 @@ interface GameCardProps {
 export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
 
-  const getUniquePlatforms = (platforms: Game['platforms']) => {
-    if (!platforms) return []
-
-    const uniquePlatforms = new Set<string>()
-    const platformIcons: { name: string; icon: JSX.Element }[] = []
-
-    platforms.forEach((platform) => {
-      const name = platform.platform.name.toLowerCase()
-      let platformType = ''
-      let icon: JSX.Element | null = null
-
-      if (name.includes('playstation') && !uniquePlatforms.has('playstation')) {
-        platformType = 'playstation'
-        icon = <IconPlaystationSquare size={20} />
-      } else if (name.includes('xbox') && !uniquePlatforms.has('xbox')) {
-        platformType = 'xbox'
-        icon = <IconBrandXbox size={20} />
-      } else if ((name.includes('pc') || name.includes('windows')) && !uniquePlatforms.has('pc')) {
-        platformType = 'pc'
-        icon = <IconBrandWindows size={20} />
-      } else if (name.includes('nintendo') && !uniquePlatforms.has('nintendo')) {
-        platformType = 'nintendo'
-        icon = <IconDeviceNintendo size={20} />
-      }
-
-      if (platformType && icon && !uniquePlatforms.has(platformType)) {
-        uniquePlatforms.add(platformType)
-        platformIcons.push({ name: platformType, icon })
-      }
-    })
-
-    return platformIcons
-  }
-
-  const uniquePlatforms = getUniquePlatforms(game.platforms)
+  const platformTypes = getUniquePlatformTypes(game.platforms)
+  const uniquePlatforms = mapPlatformIcons(platformTypes)
 
   if (viewMode === 'list') {
     return (
@@ -62,7 +22,7 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
         shadow="sm"
         padding="md"
         radius="sm"
-        w="700px"
+        w={{ base: '100%', md: 700 }}
         style={{
           backgroundColor: '#2d2d2d',
           border: '1px solid #404040',
@@ -173,10 +133,9 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
     >
       <Card.Section style={{ position: 'relative', overflow: 'hidden' }}>
         <Image
-          src={game.background_image || '/placeholder.svg'}
+          src={game.background_image}
           height={200}
           alt={game.name}
-          fallbackSrc="/placeholder.svg?height=200&width=300"
           style={{
             transition: 'all 0.3s ease',
             transform: isHovered ? 'scale(1.08)' : 'scale(1)',
