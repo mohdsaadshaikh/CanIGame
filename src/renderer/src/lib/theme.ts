@@ -47,6 +47,18 @@ export const mantineTheme: MantineThemeOverride = createTheme({
     //   '#27b154',
     //   '#16a34a'
     // ]
+    //     [
+    //   "#ffeee4",
+    //   "#ffddcf",
+    //   "#f9baa1",
+    //   "#f4946f",
+    //   "#ef7445",
+    //   "#ee6734",
+    //   "#ed541b",
+    //   "#d3450e",
+    //   "#bc3b09",
+    //   "#a53002"
+    // ]
     greenMint: [
       '#e1fff5',
       '#cbffec',

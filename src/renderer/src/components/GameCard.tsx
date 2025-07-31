@@ -1,16 +1,13 @@
-import { ActionIcon, Badge, Box, Card, Group, Image, Overlay, Stack, Text } from '@mantine/core'
+import { Badge, Box, Card, Group, Image, Stack, Text } from '@mantine/core'
 import {
   IconBrandWindows,
   IconBrandXbox,
   IconCalendar,
   IconDeviceNintendo,
-  IconHeart,
-  IconPlayerPlay,
-  IconPlaystationCircle,
-  IconPlus,
+  IconPlaystationSquare,
   IconStar
 } from '@tabler/icons-react'
-import { useState } from 'react'
+import { JSX, useState } from 'react'
 import { Game } from 'src/types/games'
 
 // Proper interface for GameCard props
@@ -20,29 +17,59 @@ interface GameCardProps {
   onGameClick?: (game: Game) => void
 }
 
-export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps) {
+export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
 
-  const getPlatformIcon = (platformName: string) => {
-    const name = platformName.toLowerCase()
-    if (name.includes('playstation')) return <IconPlaystationCircle size={24} />
-    if (name.includes('xbox')) return <IconBrandXbox size={24} />
-    if (name.includes('pc')) return <IconBrandWindows size={24} />
-    if (name.includes('nintendo')) return <IconDeviceNintendo size={24} />
-    return '🎮'
+  const getUniquePlatforms = (platforms: Game['platforms']) => {
+    if (!platforms) return []
+
+    const uniquePlatforms = new Set<string>()
+    const platformIcons: { name: string; icon: JSX.Element }[] = []
+
+    platforms.forEach((platform) => {
+      const name = platform.platform.name.toLowerCase()
+      let platformType = ''
+      let icon: JSX.Element | null = null
+
+      if (name.includes('playstation') && !uniquePlatforms.has('playstation')) {
+        platformType = 'playstation'
+        icon = <IconPlaystationSquare size={20} />
+      } else if (name.includes('xbox') && !uniquePlatforms.has('xbox')) {
+        platformType = 'xbox'
+        icon = <IconBrandXbox size={20} />
+      } else if ((name.includes('pc') || name.includes('windows')) && !uniquePlatforms.has('pc')) {
+        platformType = 'pc'
+        icon = <IconBrandWindows size={20} />
+      } else if (name.includes('nintendo') && !uniquePlatforms.has('nintendo')) {
+        platformType = 'nintendo'
+        icon = <IconDeviceNintendo size={20} />
+      }
+
+      if (platformType && icon && !uniquePlatforms.has(platformType)) {
+        uniquePlatforms.add(platformType)
+        platformIcons.push({ name: platformType, icon })
+      }
+    })
+
+    return platformIcons
   }
+
+  const uniquePlatforms = getUniquePlatforms(game.platforms)
 
   if (viewMode === 'list') {
     return (
       <Card
         shadow="sm"
         padding="md"
-        radius="md"
+        radius="sm"
+        w="700px"
         style={{
           backgroundColor: '#2d2d2d',
           border: '1px solid #404040',
           cursor: 'pointer',
-          transition: 'all 0.2s ease'
+          transition: 'all 0.3s ease',
+          transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
+          boxShadow: isHovered ? '0 8px 25px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)'
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -50,17 +77,27 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
       >
         <Group gap="md">
           <Image
-            src={game.background_image || '/placeholder.svg'}
-            height={80}
-            width={120}
-            radius="md"
+            src={game.background_image}
+            radius="sm"
             alt={game.name}
-            fallbackSrc="/placeholder.svg?height=80&width=120"
+            style={{
+              transition: 'all 0.3s ease',
+              transform: isHovered ? 'scale(1.05)' : 'scale(1)'
+            }}
           />
 
           <Box style={{ flex: 1 }}>
             <Group justify="space-between" mb="xs">
-              <Text fw={600} c="white" size="lg" lineClamp={1}>
+              <Text
+                fw={600}
+                c="white"
+                size="lg"
+                lineClamp={1}
+                style={{
+                  transition: 'color 0.3s ease',
+                  color: isHovered ? '#40c057' : 'white'
+                }}
+              >
                 {game.name}
               </Text>
               <Group gap="xs">
@@ -80,17 +117,30 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
               </Group>
 
               <Group gap="xs">
-                {game.platforms?.slice(0, 3).map((platform) => (
-                  <Text key={platform.platform.id} size="xs" c="dimmed">
-                    {getPlatformIcon(platform.platform.name)}
-                  </Text>
+                {uniquePlatforms.map((platform) => (
+                  <Box
+                    key={platform.name}
+                    style={{
+                      color: '#888',
+                      transition: 'color 0.3s ease',
+                      ...(isHovered && { color: '#40c057' })
+                    }}
+                  >
+                    {platform.icon}
+                  </Box>
                 ))}
               </Group>
             </Group>
 
             <Group gap="xs">
               {game.genres?.slice(0, 3).map((genre) => (
-                <Badge key={genre.id} variant="light" size="xs" color="teal">
+                <Badge
+                  key={genre.id}
+                  variant="light"
+                  size="xs"
+                  color={isHovered ? 'green' : 'teal'}
+                  style={{ transition: 'all 0.3s ease' }}
+                >
                   {genre.name}
                 </Badge>
               ))}
@@ -110,48 +160,29 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
         backgroundColor: '#2d2d2d',
         border: '1px solid #404040',
         cursor: 'pointer',
-        transition: 'all 0.2s ease',
+        transition: 'all 0.3s ease',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        transform: isHovered ? 'translateY(-8px)' : 'translateY(0)',
+        boxShadow: isHovered ? '0 12px 30px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,0,0,0.2)',
+        borderColor: isHovered ? '#40c057' : '#404040'
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => onGameClick?.(game)}
     >
-      <Card.Section style={{ position: 'relative' }}>
+      <Card.Section style={{ position: 'relative', overflow: 'hidden' }}>
         <Image
           src={game.background_image || '/placeholder.svg'}
           height={200}
           alt={game.name}
           fallbackSrc="/placeholder.svg?height=200&width=300"
+          style={{
+            transition: 'all 0.3s ease',
+            transform: isHovered ? 'scale(1.08)' : 'scale(1)',
+            filter: isHovered ? 'brightness(1.1)' : 'brightness(1)'
+          }}
         />
-
-        {isHovered && (
-          <>
-            <Overlay color="#000" opacity={0.6} />
-            <Box
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                zIndex: 10
-              }}
-            >
-              <Group gap="sm">
-                <ActionIcon size="lg" radius="xl" color="teal" variant="filled">
-                  <IconPlayerPlay size={20} />
-                </ActionIcon>
-                <ActionIcon size="lg" radius="xl" color="red" variant="filled">
-                  <IconHeart size={20} />
-                </ActionIcon>
-                <ActionIcon size="lg" radius="xl" color="blue" variant="filled">
-                  <IconPlus size={20} />
-                </ActionIcon>
-              </Group>
-            </Box>
-          </>
-        )}
 
         <Box
           style={{
@@ -165,6 +196,10 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
             <Badge
               color={game.metacritic >= 80 ? 'green' : game.metacritic >= 60 ? 'yellow' : 'red'}
               variant="filled"
+              style={{
+                transition: 'all 0.3s ease',
+                transform: isHovered ? 'scale(1.1)' : 'scale(1)'
+              }}
             >
               {game.metacritic}
             </Badge>
@@ -174,22 +209,47 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
 
       <Stack gap="xs" mt="md">
         <Group justify="space-between">
-          <Text fw={600} c="white" size="lg" lineClamp={1}>
+          <Text
+            fw={600}
+            c="white"
+            size="lg"
+            lineClamp={1}
+            style={{
+              transition: 'color 0.3s ease',
+              color: isHovered ? '#40c057' : 'white'
+            }}
+          >
             {game.name}
           </Text>
         </Group>
 
         <Group gap="xs" mb="sm">
-          {game.platforms?.slice(0, 4).map((platform) => (
-            <Text key={platform.platform.id} size="xs" c="dimmed">
-              {getPlatformIcon(platform.platform.name)}
-            </Text>
+          {uniquePlatforms.map((platform) => (
+            <Box
+              key={platform.name}
+              style={{
+                color: '#888',
+                transition: 'all 0.3s ease',
+                transform: isHovered ? 'scale(1.1)' : 'scale(1)',
+                ...(isHovered && { color: '#40c057' })
+              }}
+            >
+              {platform.icon}
+            </Box>
           ))}
         </Group>
 
         <Group justify="space-between" mb="sm">
           <Group gap="xs">
-            <IconStar size={16} fill="#ffd43b" color="#ffd43b" />
+            <IconStar
+              size={16}
+              fill="#ffd43b"
+              color="#ffd43b"
+              style={{
+                transition: 'transform 0.3s ease',
+                transform: isHovered ? 'scale(1.2)' : 'scale(1)'
+              }}
+            />
             <Text size="sm" c="white" fw={500}>
               {game.rating ? game.rating.toFixed(1) : 'N/A'}
             </Text>
@@ -209,14 +269,31 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
 
         <Group gap="xs">
           {game.genres?.slice(0, 2).map((genre) => (
-            <Badge key={genre.id} variant="light" size="xs" color="teal">
+            <Badge
+              key={genre.id}
+              variant="light"
+              size="xs"
+              color={isHovered ? 'green' : 'teal'}
+              style={{
+                transition: 'all 0.3s ease',
+                transform: isHovered ? 'scale(1.05)' : 'scale(1)'
+              }}
+            >
               {genre.name}
             </Badge>
           ))}
         </Group>
 
-        {isHovered && game.playtime && (
-          <Text size="xs" c="dimmed" mt="xs">
+        {game.playtime && (
+          <Text
+            size="xs"
+            c="dimmed"
+            mt="xs"
+            style={{
+              opacity: isHovered ? 1 : 0.7,
+              transition: 'opacity 0.3s ease'
+            }}
+          >
             Average playtime: {game.playtime} hours
           </Text>
         )}
