@@ -24,7 +24,6 @@ export interface Game {
   playtime: number
   suggestions_count: number
   updated: string
-  user_game: any
   reviews_count: number
   saturated_color: string
   dominant_color: string
@@ -32,7 +31,6 @@ export interface Game {
   parent_platforms: ParentPlatform[]
   genres: Genre[]
   stores: StoreInfo[]
-  clip: any
   tags: Tag[]
   esrb_rating: EsrbRating
   short_screenshots: Screenshot[]
