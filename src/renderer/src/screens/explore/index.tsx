@@ -35,14 +35,12 @@ const Explore = (): React.JSX.Element => {
         <Group gap="xs">
           <ActionIcon
             variant={viewMode === 'grid' ? 'filled' : 'light'}
-            color="teal"
             onClick={() => setViewMode('grid')}
           >
             <IconGrid3x3 size={18} />
           </ActionIcon>
           <ActionIcon
             variant={viewMode === 'list' ? 'filled' : 'light'}
-            color="teal"
             onClick={() => setViewMode('list')}
           >
             <IconList size={18} />

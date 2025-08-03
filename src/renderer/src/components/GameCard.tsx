@@ -1,4 +1,4 @@
-import { Badge, Box, Card, Group, Image, Stack, Text } from '@mantine/core'
+import { Badge, Box, Card, Group, Image, Stack, Text, useMantineTheme } from '@mantine/core'
 import { getUniquePlatformTypes, mapPlatformIcons } from '@renderer/utils/platform-utils'
 import { IconCalendar, IconStar } from '@tabler/icons-react'
 import { JSX, useState } from 'react'
@@ -12,6 +12,7 @@ interface GameCardProps {
 
 export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
+  const theme = useMantineTheme()
 
   const platformTypes = getUniquePlatformTypes(game.platforms)
   const uniquePlatforms = mapPlatformIcons(platformTypes)
@@ -24,7 +25,6 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
         radius="sm"
         w={{ base: '100%', md: 700 }}
         style={{
-          backgroundColor: '#2d2d2d',
           border: '1px solid #404040',
           cursor: 'pointer',
           transition: 'all 0.3s ease',
@@ -83,7 +83,7 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
                     style={{
                       color: '#888',
                       transition: 'color 0.3s ease',
-                      ...(isHovered && { color: '#40c057' })
+                      ...(isHovered && { color: theme.colors.orange[5] })
                     }}
                   >
                     {platform.icon}
@@ -98,7 +98,7 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
                   key={genre.id}
                   variant="light"
                   size="xs"
-                  color={isHovered ? 'green' : 'teal'}
+                  color={isHovered ? theme.colors.orange[5] : theme.colors.orange[4]}
                   style={{ transition: 'all 0.3s ease' }}
                 >
                   {genre.name}
@@ -117,15 +117,14 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
       padding="lg"
       radius="md"
       style={{
-        backgroundColor: '#2d2d2d',
-        border: '1px solid #404040',
+        border: `1px solid ${theme.colors.dark[4]}`,
         cursor: 'pointer',
         transition: 'all 0.3s ease',
         position: 'relative',
         overflow: 'hidden',
         transform: isHovered ? 'translateY(-8px)' : 'translateY(0)',
         boxShadow: isHovered ? '0 12px 30px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,0,0,0.2)',
-        borderColor: isHovered ? '#40c057' : '#404040'
+        borderColor: isHovered ? theme.colors.orange[5] : theme.colors.dark[4]
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -190,7 +189,7 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
                 color: '#888',
                 transition: 'all 0.3s ease',
                 transform: isHovered ? 'scale(1.1)' : 'scale(1)',
-                ...(isHovered && { color: '#40c057' })
+                ...(isHovered && { color: theme.colors.orange[5] })
               }}
             >
               {platform.icon}
@@ -232,7 +231,7 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
               key={genre.id}
               variant="light"
               size="xs"
-              color={isHovered ? 'green' : 'teal'}
+              color={isHovered ? theme.colors.orange[5] : theme.colors.orange[4]}
               style={{
                 transition: 'all 0.3s ease',
                 transform: isHovered ? 'scale(1.05)' : 'scale(1)'

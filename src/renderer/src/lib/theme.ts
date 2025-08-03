@@ -59,20 +59,20 @@ export const mantineTheme: MantineThemeOverride = createTheme({
     //   "#bc3b09",
     //   "#a53002"
     // ]
-    greenMint: [
-      '#e1fff5',
-      '#cbffec',
-      '#9affd8',
-      '#64ffc3',
-      '#3affb1',
-      '#21ffa6',
-      '#00ff9c',
-      '#00e38a',
-      '#00ca79',
-      '#00af66'
+    orange: [
+      '#ffeee4',
+      '#ffddcf',
+      '#f9baa1',
+      '#f4946f',
+      '#ef7445',
+      '#ee6734',
+      '#ed541b',
+      '#d3450e',
+      '#bc3b09',
+      '#a53002'
     ]
   },
-  primaryColor: 'greenMint',
+  primaryColor: 'orange',
   components: {
     Container: Container.extend({
       vars: (_, { size, fluid }) => ({
