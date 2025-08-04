@@ -10,7 +10,7 @@ interface GameCardProps {
   onGameClick?: (game: Game) => void
 }
 
-export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps): JSX.Element {
+export function GameCard({ game, viewMode, onGameClick }: GameCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
   const theme = useMantineTheme()
 
@@ -21,9 +21,9 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
     return (
       <Card
         shadow="sm"
-        padding="md"
+        // padding="md"
         radius="sm"
-        w={{ base: '100%', md: 700 }}
+        w={{ base: '100%', md: 600 }}
         style={{
           border: '1px solid #404040',
           cursor: 'pointer',
@@ -40,6 +40,7 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
             src={game.background_image}
             radius="sm"
             alt={game.name}
+            // w="100%"
             style={{
               transition: 'all 0.3s ease',
               transform: isHovered ? 'scale(1.05)' : 'scale(1)'
@@ -50,12 +51,11 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
             <Group justify="space-between" mb="xs">
               <Text
                 fw={600}
-                c="white"
                 size="lg"
                 lineClamp={1}
                 style={{
                   transition: 'color 0.3s ease',
-                  color: isHovered ? '#40c057' : 'white'
+                  color: isHovered ? theme.colors.orange[5] : undefined
                 }}
               >
                 {game.name}
@@ -135,6 +135,7 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
           src={game.background_image}
           height={200}
           alt={game.name}
+          radius="sm"
           style={{
             transition: 'all 0.3s ease',
             transform: isHovered ? 'scale(1.08)' : 'scale(1)',
@@ -169,12 +170,11 @@ export function GameCard({ game, viewMode = 'grid', onGameClick }: GameCardProps
         <Group justify="space-between">
           <Text
             fw={600}
-            c="white"
             size="lg"
             lineClamp={1}
             style={{
               transition: 'color 0.3s ease',
-              color: isHovered ? '#40c057' : 'white'
+              color: isHovered ? theme.colors.orange[5] : undefined
             }}
           >
             {game.name}

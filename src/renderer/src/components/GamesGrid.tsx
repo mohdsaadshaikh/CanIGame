@@ -39,7 +39,7 @@ export function GamesGrid({ games, loading, viewMode, onGameClick }: GamesGridPr
     return (
       <Stack gap="md">
         {games.map((game) => (
-          <GameCard key={game.id} game={game} viewMode="list" onGameClick={onGameClick} />
+          <GameCard key={game.id} game={game} viewMode={viewMode} onGameClick={onGameClick} />
         ))}
       </Stack>
     )

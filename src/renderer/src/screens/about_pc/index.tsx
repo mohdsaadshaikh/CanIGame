@@ -23,11 +23,10 @@ import {
   IconDeviceSdCard
 } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
-import { HardwareInfo } from '../../../../types'
+import { HardwareInfo } from '@types/index'
 import { useHardwareInfo } from '@renderer/hooks/useHardwareInfo'
 
 const AboutPC = (): React.JSX.Element => {
-  // const [hardwareInfo, setHardwareInfo] = useState<HardwareInfo | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 

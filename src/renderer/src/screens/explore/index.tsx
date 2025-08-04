@@ -7,10 +7,12 @@ import { Game } from 'src/types/games'
 const Explore = (): React.JSX.Element => {
   const [games, setGames] = useState<Game[]>([])
   const [loading, setLoading] = useState(true)
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>(
+    (localStorage.getItem('viewMode') as 'grid' | 'list') || 'grid'
+  )
 
   useEffect(() => {
-    const fetchGames = async () => {
+    const fetchGames = async (): Promise<void> => {
       try {
         setLoading(true)
         const data = await window.api.getAllGames()
@@ -35,20 +37,26 @@ const Explore = (): React.JSX.Element => {
         <Group gap="xs">
           <ActionIcon
             variant={viewMode === 'grid' ? 'filled' : 'light'}
-            onClick={() => setViewMode('grid')}
+            onClick={() => {
+              setViewMode('grid')
+              localStorage.setItem('viewMode', 'grid')
+            }}
           >
             <IconGrid3x3 size={18} />
           </ActionIcon>
           <ActionIcon
             variant={viewMode === 'list' ? 'filled' : 'light'}
-            onClick={() => setViewMode('list')}
+            onClick={() => {
+              setViewMode('list')
+              localStorage.setItem('viewMode', 'list')
+            }}
           >
             <IconList size={18} />
           </ActionIcon>
         </Group>
       </Group>
 
-      <GamesGrid games={games} loading={loading} viewMode="grid" />
+      <GamesGrid games={games} loading={loading} viewMode={viewMode} />
     </Container>
   )
 }
