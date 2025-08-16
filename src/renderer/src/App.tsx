@@ -8,6 +8,7 @@ const Explore = lazy(() => import('./screens/explore'))
 const AboutPC = lazy(() => import('./screens/about_pc'))
 const Wishlist = lazy(() => import('./screens/wishlist'))
 const Settings = lazy(() => import('./screens/settings'))
+const GameDetails = lazy(() => import('./screens/game_details'))
 
 function App(): React.JSX.Element {
   // useEffect(() => {
@@ -55,6 +56,14 @@ function App(): React.JSX.Element {
               element={
                 <LazyRoute>
                   <Settings />
+                </LazyRoute>
+              }
+            />
+            <Route
+              path="/game/:id"
+              element={
+                <LazyRoute>
+                  <GameDetails />
                 </LazyRoute>
               }
             />

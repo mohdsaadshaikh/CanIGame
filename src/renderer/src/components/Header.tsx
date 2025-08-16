@@ -72,7 +72,7 @@ const Header: React.FC<HeaderProps> = ({ opened, toggle }) => {
         <ActionIcon
           variant="subtle"
           color="gray"
-          size="lg"
+          size="md"
           radius="xl"
           aria-label="Minimize"
           onClick={() => handleAction('minimize')}
@@ -93,15 +93,14 @@ const Header: React.FC<HeaderProps> = ({ opened, toggle }) => {
         </ActionIcon>
         <ActionIcon
           variant="light"
-          color="red"
           size="lg"
           radius="xl"
           aria-label="Close"
           onClick={() => handleAction('close')}
           style={{
             transition: 'background 0.2s',
-            ':hover': { background: '#ffdddd' },
-            color: '#d7263d'
+            ':hover': { background: '#ffdddd' }
+            // color: '#d7263d'
           }}
         >
           <IconX size={18} stroke={2.5} />

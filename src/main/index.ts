@@ -84,3 +84,9 @@ ipcMain.handle('get-all-games', async () => {
   const { getAllGames } = await import('./services/apis')
   return getAllGames()
 })
+
+// get game by slug
+ipcMain.handle('get-game-by-slug', async (_event, slug) => {
+  const { getGameBySlug } = await import('./services/apis')
+  return getGameBySlug(slug)
+})

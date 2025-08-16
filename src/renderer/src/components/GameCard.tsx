@@ -3,6 +3,7 @@ import { getUniquePlatformTypes, mapPlatformIcons } from '@renderer/utils/platfo
 import { IconCalendar, IconStar } from '@tabler/icons-react'
 import { JSX, useState } from 'react'
 import { Game } from 'src/types/games'
+import { useNavigate } from 'react-router-dom'
 
 interface GameCardProps {
   game: Game
@@ -13,6 +14,7 @@ interface GameCardProps {
 export function GameCard({ game, viewMode, onGameClick }: GameCardProps): JSX.Element {
   const [isHovered, setIsHovered] = useState(false)
   const theme = useMantineTheme()
+  const navigate = useNavigate()
 
   const platformTypes = getUniquePlatformTypes(game.platforms)
   const uniquePlatforms = mapPlatformIcons(platformTypes)
@@ -21,7 +23,6 @@ export function GameCard({ game, viewMode, onGameClick }: GameCardProps): JSX.El
     return (
       <Card
         shadow="sm"
-        // padding="md"
         radius="sm"
         w={{ base: '100%', md: 600 }}
         style={{
@@ -33,7 +34,8 @@ export function GameCard({ game, viewMode, onGameClick }: GameCardProps): JSX.El
         }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        onClick={() => onGameClick?.(game)}
+        onClick={() => navigate()}
+
       >
         <Group gap="md">
           <Image

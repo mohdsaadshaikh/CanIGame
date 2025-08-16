@@ -5,7 +5,8 @@ const api = {
   getHardwareInfo: () => ipcRenderer.invoke('get-hardware-info'),
   windowControl: (action: 'minimize' | 'maximize' | 'close') =>
     ipcRenderer.invoke('window-control', action),
-  getAllGames: () => ipcRenderer.invoke('get-all-games')
+  getAllGames: () => ipcRenderer.invoke('get-all-games'),
+  getGameBySlug: (slug: string) => ipcRenderer.invoke('get-game-by-slug', slug)
 }
 
 if (process.contextIsolated) {
