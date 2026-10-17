@@ -1,8 +1,8 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly MAIN_VITE_SOME_KEY: string
-  // more env variables...
+  /** RAWG API key. Main-process only (MAIN_VITE_ prefix); set in `.env`. */
+  readonly MAIN_VITE_RAWG_API_KEY: string | undefined
 }
 
 interface ImportMeta {

@@ -1,0 +1,11 @@
+# Normalise line endings to LF in the repo and on checkout, regardless of each
+# developer's core.autocrlf. Matches .editorconfig and Prettier (endOfLine: lf).
+* text=auto eol=lf
+
+# Binary assets
+*.png binary
+*.ico binary
+*.icns binary
+*.ttf binary
+*.woff binary
+*.woff2 binary

@@ -1,24 +1,20 @@
 import { contextBridge, ipcRenderer } from 'electron'
-import { electronAPI } from '@electron-toolkit/preload'
+import { IPC_CHANNELS, type Api, type GamesQuery, type WindowAction } from '@shared/ipc'
 
-const api = {
-  getHardwareInfo: () => ipcRenderer.invoke('get-hardware-info'),
-  windowControl: (action: 'minimize' | 'maximize' | 'close') =>
-    ipcRenderer.invoke('window-control', action),
-  getAllGames: () => ipcRenderer.invoke('get-all-games'),
-  getGameBySlug: (slug: string) => ipcRenderer.invoke('get-game-by-slug', slug)
+/**
+ * The only bridge between renderer and main. Expose named, typed functions —
+ * never `ipcRenderer` itself — so a compromised renderer cannot invoke arbitrary channels.
+ * Typing the object as `Api` keeps preload and renderer in lockstep at compile time.
+ */
+const api: Api = {
+  windowControl: (action: WindowAction) => ipcRenderer.invoke(IPC_CHANNELS.WINDOW_CONTROL, action),
+  getHardwareInfo: () => ipcRenderer.invoke(IPC_CHANNELS.GET_HARDWARE_INFO),
+  getSystemDetails: () => ipcRenderer.invoke(IPC_CHANNELS.GET_SYSTEM_DETAILS),
+  getLiveStats: () => ipcRenderer.invoke(IPC_CHANNELS.GET_LIVE_STATS),
+  getLiveGpu: () => ipcRenderer.invoke(IPC_CHANNELS.GET_LIVE_GPU),
+  getGames: (query: GamesQuery) => ipcRenderer.invoke(IPC_CHANNELS.GET_GAMES, query),
+  getGameBySlug: (slug: string) => ipcRenderer.invoke(IPC_CHANNELS.GET_GAME_BY_SLUG, slug),
+  clearCache: () => ipcRenderer.invoke(IPC_CHANNELS.CLEAR_CACHE)
 }
 
-if (process.contextIsolated) {
-  try {
-    contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
-  } catch (error) {
-    console.error(error)
-  }
-} else {
-  // @ts-ignore (define in dts)
-  window.electron = electronAPI
-  // @ts-ignore (define in dts)
-  window.api = api
-}
+contextBridge.exposeInMainWorld('api', api)

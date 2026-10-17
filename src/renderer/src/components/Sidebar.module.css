@@ -1,0 +1,152 @@
+/*
+ * Sidebar in the app's own language: the UI face, rounded like the panels, and the active
+ * item is the same gradient pill as the app's primary buttons.
+ */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 22px 14px 14px;
+  gap: 18px;
+}
+
+.nav {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.nav::-webkit-scrollbar {
+  display: none;
+}
+
+/* Section label: small and quiet, no rule. */
+.groupLabel {
+  padding: 0 16px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--cig-silk-3);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--cig-silk-2);
+  transition:
+    color 120ms ease,
+    background 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.link:hover {
+  color: var(--cig-silk);
+  background: var(--cig-panel);
+}
+
+.link:focus-visible {
+  outline-offset: 2px;
+}
+
+.icon {
+  display: flex;
+}
+
+/* Active: a dark pill lit by a soft orange glow from the left, not a solid fill. */
+.active,
+.active:hover {
+  color: var(--cig-silk);
+  font-weight: 600;
+  background:
+    linear-gradient(
+      90deg,
+      rgba(237, 84, 27, 0.32) 0%,
+      rgba(237, 84, 27, 0.06) 70%,
+      transparent 100%
+    ),
+    var(--cig-panel);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 122, 69, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.active .icon {
+  color: var(--cig-accent);
+}
+
+/* ---------- Games list (recently viewed, or popular as a fallback) ---------- */
+
+.games {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.game {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 8px;
+  border-radius: 14px;
+  color: inherit;
+  text-decoration: none;
+  transition: background 150ms ease;
+}
+
+.game:hover {
+  background: var(--cig-panel);
+}
+
+.thumb {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--cig-raised);
+}
+
+.gameText {
+  min-width: 0;
+}
+
+.gameName,
+.gameGenre {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.gameName {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--cig-silk-2);
+  transition: color 120ms ease;
+}
+
+.game:hover .gameName {
+  color: var(--cig-silk);
+}
+
+.gameGenre {
+  font-size: 12px;
+  color: var(--cig-silk-3);
+}

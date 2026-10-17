@@ -1,14 +1,19 @@
-import { BrowserWindow } from 'electron'
+import type { BrowserWindow } from 'electron'
+import type { WindowAction } from '@shared/ipc'
 
-export function handleWindowControl(
-  mainWindow: BrowserWindow,
-  action: 'minimize' | 'maximize' | 'close'
-): void {
-  if (!mainWindow) return
-  if (action === 'minimize') mainWindow.minimize()
-  else if (action === 'maximize') {
-    mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
-  } else if (action === 'close') {
-    mainWindow.close()
+export function handleWindowControl(window: BrowserWindow | null, action: WindowAction): void {
+  if (!window || window.isDestroyed()) return
+
+  switch (action) {
+    case 'minimize':
+      window.minimize()
+      break
+    case 'maximize':
+      if (window.isMaximized()) window.unmaximize()
+      else window.maximize()
+      break
+    case 'close':
+      window.close()
+      break
   }
 }

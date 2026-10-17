@@ -1,8 +1,26 @@
+# Dependencies
 node_modules
+
+# Build output
 dist
 out
-.DS_Store
+*.tsbuildinfo
+
+# Secrets — never commit real keys. Copy .env.example to .env locally.
+.env
+.env.local
+.env.*.local
+
+# Tooling caches / logs
 .eslintcache
 *.log*
-newFolder
+
+# OS / editor
+.DS_Store
+Thumbs.db
 .idea
+
+# Impeccable: local decision-page state and review captures (the surface brief is committed)
+.impeccable/questions/
+.impeccable/review/
+.impeccable/mocks/

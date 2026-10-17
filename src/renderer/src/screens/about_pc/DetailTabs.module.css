@@ -1,0 +1,361 @@
+/* ---------- Tab strip: pills, active one takes the accent gradient ---------- */
+
+.tabList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 5px;
+  border: 1px solid var(--cig-seam);
+  border-radius: 999px;
+  background: var(--cig-panel);
+  width: fit-content;
+  max-width: 100%;
+}
+
+.tabList::before {
+  display: none;
+}
+
+.tab {
+  height: 34px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cig-silk-2);
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.tab:hover {
+  background: var(--cig-raised);
+  color: var(--cig-silk);
+}
+
+.tab[data-active] {
+  background: var(--cig-accent-gradient);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.tab[data-active]:hover {
+  background: var(--cig-accent-gradient);
+  color: #fff;
+}
+
+.body {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.body > [role='tabpanel'] {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ---------- Spec tiles ---------- */
+
+.specs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.spec {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px;
+  border: 1px solid var(--cig-seam);
+  border-radius: 14px;
+  background: var(--cig-plate);
+  transition:
+    border-color 150ms ease,
+    transform 150ms ease;
+}
+
+.spec:hover {
+  border-color: var(--cig-seam-strong);
+  transform: translateY(-1px);
+}
+
+.specLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--cig-silk-3);
+}
+
+.specValue {
+  font-family: var(--cig-display);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.05;
+  color: var(--cig-silk);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Panels ---------- */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 22px;
+  border: 1px solid var(--cig-seam);
+  border-radius: var(--mantine-radius-lg);
+  background: var(--cig-plate);
+}
+
+.panel[data-feature] {
+  background: linear-gradient(135deg, var(--tone-wash) 0%, transparent 55%), var(--cig-plate);
+}
+
+.panel .specs {
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+.panel .spec {
+  background: var(--cig-raised);
+  border-color: transparent;
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tone-solid);
+}
+
+.panelTitle {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cig-silk);
+}
+
+.panelSub {
+  font-size: 13px;
+  color: var(--cig-silk-2);
+}
+
+.badge {
+  margin-left: auto;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--tone-gradient);
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.inlineIcon {
+  color: var(--tone-solid);
+}
+
+/* ---------- Meters ---------- */
+
+.meter {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--cig-raised);
+}
+
+.meterFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--tone-gradient);
+  transition: width 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.meterFill[data-high] {
+  background: linear-gradient(90deg, #f03e3e, #c92a2a);
+}
+
+.usageHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.usageValue {
+  font-family: var(--cig-display);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--cig-silk);
+  font-variant-numeric: tabular-nums;
+}
+
+.usageValue small {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--cig-silk-2);
+}
+
+/* ---------- Per-thread chart ---------- */
+
+.threads {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(38px, 1fr));
+  gap: 8px;
+}
+
+.thread {
+  display: grid;
+  grid-template-rows: 110px auto auto;
+  justify-items: center;
+  gap: 6px;
+}
+
+.threadBar {
+  align-self: end;
+  width: 100%;
+  border-radius: 8px 8px 4px 4px;
+  transition: height 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.threadValue {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cig-silk);
+  font-variant-numeric: tabular-nums;
+}
+
+.threadLabel {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 10px;
+  color: var(--cig-silk-3);
+}
+
+/* ---------- Memory sticks ---------- */
+
+.sticks {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.stick {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px 20px 22px;
+  border: 1px solid var(--cig-seam);
+  border-radius: var(--mantine-radius-lg);
+  background:
+    linear-gradient(180deg, transparent calc(100% - 10px), var(--tone-wash) calc(100% - 10px)),
+    var(--cig-plate);
+}
+
+/* The DRAM chips row, so the card reads as a memory stick. */
+.stickChips {
+  height: 18px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  background: repeating-linear-gradient(90deg, var(--cig-raised) 0 26px, transparent 26px 34px);
+}
+
+.stickSize {
+  font-family: var(--cig-display);
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--cig-silk);
+}
+
+.stickMeta {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--cig-silk-2);
+  white-space: pre;
+}
+
+.stickSlot {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 11px;
+  color: var(--cig-copper);
+}
+
+/* ---------- Storage volumes ---------- */
+
+.volumes {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.volume {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.volumeHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.volumeName {
+  font-family: var(--cig-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--cig-silk);
+}
+
+.volumeFree {
+  font-size: 13px;
+  color: var(--cig-silk-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Pending ---------- */
+
+.pending {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.pendingNote {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: 13px;
+  color: var(--cig-silk-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meterFill,
+  .threadBar,
+  .spec {
+    transition: none;
+  }
+}

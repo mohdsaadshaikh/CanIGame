@@ -1,5 +1,9 @@
 import si from 'systeminformation'
-import { HardwareInfo } from '../../types/index'
+import type { HardwareInfo } from '@shared/types/hardware'
+
+const BYTES_PER_GB = 1024 ** 3
+
+const toGB = (bytes: number): number => Math.round((bytes / BYTES_PER_GB) * 100) / 100
 
 export async function getHardwareInfo(): Promise<HardwareInfo> {
   try {
@@ -24,11 +28,11 @@ export async function getHardwareInfo(): Promise<HardwareInfo> {
     }
 
     const memoryInfo = {
-      total: Math.round((memory.total / 1024 / 1024 / 1024) * 100) / 100,
-      free: Math.round((memory.free / 1024 / 1024 / 1024) * 100) / 100,
-      used: Math.round((memory.used / 1024 / 1024 / 1024) * 100) / 100,
-      active: Math.round((memory.active / 1024 / 1024 / 1024) * 100) / 100,
-      available: Math.round((memory.available / 1024 / 1024 / 1024) * 100) / 100
+      total: toGB(memory.total),
+      free: toGB(memory.free),
+      used: toGB(memory.used),
+      active: toGB(memory.active),
+      available: toGB(memory.available)
     }
 
     const gpuInfo = graphics.controllers.map((controller) => ({

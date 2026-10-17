@@ -1,0 +1,36 @@
+.header {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.text {
+  min-width: 0;
+}
+
+/* Condensed caps: the voice of game launchers and broadcast graphics. */
+.title {
+  margin: 0;
+  font-family: var(--cig-display);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--cig-silk);
+}
+
+.meta {
+  margin-top: 4px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 14px;
+  color: var(--cig-silk-2);
+}
+
+.actions {
+  margin-left: auto;
+  flex-shrink: 0;
+}

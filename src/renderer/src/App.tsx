@@ -1,5 +1,5 @@
-import { lazy } from 'react'
-import { HashRouter, Route, Routes } from 'react-router-dom'
+import { lazy, type ReactNode } from 'react'
+import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import LazyRoute from './components/LazyRoute'
 import AppLayout from './layout'
 
@@ -10,67 +10,23 @@ const Wishlist = lazy(() => import('./screens/wishlist'))
 const Settings = lazy(() => import('./screens/settings'))
 const GameDetails = lazy(() => import('./screens/game_details'))
 
+const page = (element: ReactNode): ReactNode => <LazyRoute>{element}</LazyRoute>
+
 function App(): React.JSX.Element {
-  // useEffect(() => {
-  //   window.api.getHardwareInfo().then((res) => console.log(res))
-  // }, [])
   return (
-    <>
-      <HashRouter>
-        <Routes>
-          <Route path="/" element={<AppLayout />}>
-            <Route
-              path="/"
-              element={
-                <LazyRoute>
-                  <Home />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="/explore"
-              element={
-                <LazyRoute>
-                  <Explore />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="/wishlist"
-              element={
-                <LazyRoute>
-                  <Wishlist />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="/pc"
-              element={
-                <LazyRoute>
-                  <AboutPC />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <LazyRoute>
-                  <Settings />
-                </LazyRoute>
-              }
-            />
-            <Route
-              path="/game/:id"
-              element={
-                <LazyRoute>
-                  <GameDetails />
-                </LazyRoute>
-              }
-            />
-          </Route>
-        </Routes>
-      </HashRouter>
-    </>
+    <HashRouter>
+      <Routes>
+        <Route path="/" element={<AppLayout />}>
+          <Route index element={page(<Home />)} />
+          <Route path="explore" element={page(<Explore />)} />
+          <Route path="wishlist" element={page(<Wishlist />)} />
+          <Route path="pc" element={page(<AboutPC />)} />
+          <Route path="settings" element={page(<Settings />)} />
+          <Route path="game/:slug" element={page(<GameDetails />)} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </HashRouter>
   )
 }
 

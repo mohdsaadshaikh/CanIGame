@@ -1,71 +1,93 @@
-import { links } from '@renderer/constants'
-import { Flex, Text, UnstyledButton, useMantineTheme } from '@mantine/core'
-import React from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { NAV_SECTIONS, links } from '@renderer/constants'
+import { useGames } from '@renderer/hooks/useGames'
+import { useRecentGames, type RecentGame } from '@renderer/hooks/useRecentGames'
+import { rawgImage } from '@renderer/utils/images'
+import type { GamesQuery } from '@shared/ipc'
+import { Link, NavLink } from 'react-router-dom'
+import { RigCard } from './RigCard'
+import classes from './Sidebar.module.css'
 
-const Sidebar: React.FC = () => {
-  const location = useLocation()
-  const navigate = useNavigate()
-  const theme = useMantineTheme()
+const SIDEBAR_GAMES = 5
+// Stable object, so useGames' cache key never changes between renders.
+const POPULAR_QUERY: GamesQuery = { ordering: '-added', pcOnly: true, pageSize: SIDEBAR_GAMES }
+
+const Sidebar = (): React.JSX.Element => {
+  const { recent } = useRecentGames()
+  const popular = useGames(POPULAR_QUERY)
+
+  // Always show games: what the user opened, or what's popular until they open some.
+  const showingRecent = recent.length > 0
+  const games: RecentGame[] = showingRecent
+    ? recent
+    : popular.games.slice(0, SIDEBAR_GAMES).map((game) => ({
+        slug: game.slug,
+        name: game.name,
+        image: game.background_image,
+        genre: game.genres[0]?.name ?? ''
+      }))
 
   return (
-    <Flex direction="column" gap={4} py="md" style={{ minWidth: 80 }}>
-      {links.map((link) => {
-        const active = location.pathname === link.to
-        const Icon = active ? link.icon.filled : link.icon.outline
+    <div className={classes.root}>
+      <nav className={classes.nav} aria-label="Main">
+        {NAV_SECTIONS.map((section) => (
+          <div key={section.id}>
+            <div className={classes.groupLabel}>{section.label}</div>
+            <div className={classes.list}>
+              {links
+                .filter((link) => link.section === section.id)
+                .map((link) => (
+                  <NavLink
+                    key={link.to}
+                    to={link.to}
+                    end={link.to === '/'}
+                    className={({ isActive }) =>
+                      isActive ? `${classes.link} ${classes.active}` : classes.link
+                    }
+                  >
+                    {({ isActive }) => {
+                      const Icon = isActive ? link.icon.filled : link.icon.outline
+                      return (
+                        <>
+                          <span className={classes.icon}>
+                            <Icon size={18} stroke={2} />
+                          </span>
+                          {link.label}
+                        </>
+                      )
+                    }}
+                  </NavLink>
+                ))}
+            </div>
+          </div>
+        ))}
 
-        return (
-          <UnstyledButton
-            key={link.label}
-            onClick={() => navigate(link.to)}
-            style={{
-              position: 'relative'
-            }}
-          >
-            <Flex align="center" gap="xs" px="md" py={10} ml="lg">
-              {active && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    left: 12,
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    width: 4,
-                    height: 32,
-                    borderRadius: theme.radius.sm,
-                    backgroundColor: theme.colors[theme.primaryColor][6],
-                    boxShadow: `4px 0 10px ${theme.colors[theme.primaryColor][6]}`
-                  }}
-                />
-              )}
+        {games.length > 0 && (
+          <div>
+            <div className={classes.groupLabel}>
+              {showingRecent ? 'Recently viewed' : 'Popular on PC'}
+            </div>
+            <div className={classes.games}>
+              {games.map((game) => (
+                <Link key={game.slug} to={`/game/${game.slug}`} className={classes.game}>
+                  <img
+                    src={rawgImage(game.image, 420)}
+                    alt=""
+                    className={classes.thumb}
+                    loading="lazy"
+                  />
+                  <span className={classes.gameText}>
+                    <span className={classes.gameName}>{game.name}</span>
+                    {game.genre && <span className={classes.gameGenre}>{game.genre}</span>}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </nav>
 
-              <Flex
-                align="center"
-                justify="center"
-                style={{
-                  color: active ? theme.colors[theme.primaryColor][6] : 'gray',
-                  opacity: active ? 1 : 0.8,
-                  transition: 'color 150ms ease, opacity 150ms ease'
-                }}
-              >
-                <Icon size={22} />
-              </Flex>
-
-              <Text
-                c={active ? theme.colors[theme.primaryColor][6] : 'gray'}
-                style={{
-                  letterSpacing: 0.2,
-                  transition: 'color 150ms ease',
-                  opacity: active ? 1 : 0.8
-                }}
-              >
-                {link.label}
-              </Text>
-            </Flex>
-          </UnstyledButton>
-        )
-      })}
-    </Flex>
+      <RigCard />
+    </div>
   )
 }
 

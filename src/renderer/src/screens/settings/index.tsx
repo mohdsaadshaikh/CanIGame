@@ -1,51 +1,95 @@
-import { Card, Container, Tabs, Text } from '@mantine/core'
-import { ThemeToggler } from '@renderer/components/ThemeToggler'
-import { IconPalette } from '@tabler/icons-react'
+import { Button, Container, Text } from '@mantine/core'
+import { useHardware } from '@renderer/hooks/useHardware'
+import { getErrorMessage } from '@renderer/utils/errors'
+import { IconCpu, IconDatabase, IconRefresh, IconTrash } from '@tabler/icons-react'
+import { useState } from 'react'
+import classes from './Settings.module.css'
+
+interface SettingProps {
+  icon: React.ReactNode
+  title: string
+  description: string
+  children: React.ReactNode
+}
+
+const Setting = ({ icon, title, description, children }: SettingProps): React.JSX.Element => (
+  <section className={classes.setting}>
+    <span className={classes.tile} aria-hidden="true">
+      {icon}
+    </span>
+    <div className={classes.text}>
+      <h2 className={classes.name}>{title}</h2>
+      <p className={classes.description}>{description}</p>
+    </div>
+    <div className={classes.action}>{children}</div>
+  </section>
+)
 
 const Settings = (): React.JSX.Element => {
-  return (
-    <>
-      <Container size="xl" py="md">
-        <Text className="gaming-gradient-text" size="xl" fw={700} mb="lg">
-          Settings
-        </Text>
+  const { scanning, scan, error: scanError } = useHardware()
+  const [clearing, setClearing] = useState(false)
+  const [cacheNote, setCacheNote] = useState<string | null>(null)
 
-        <Tabs defaultValue="appearance">
-          <Tabs.List mb="lg">
-            <Tabs.Tab value="appearance" leftSection={<IconPalette size={16} />}>
-              Appearance
-            </Tabs.Tab>
-            {/* <Tabs.Tab value="general" leftSection={<Monitor size={16} />}>
-              General
-            </Tabs.Tab>
-            <Tabs.Tab value="gaming" leftSection={<Gamepad size={16} />}>
-              Gaming
-            </Tabs.Tab>
-            <Tabs.Tab value="notifications" leftSection={<Bell size={16} />}>
-              Notifications
-            </Tabs.Tab>
-            <Tabs.Tab value="privacy" leftSection={<Shield size={16} />}>
-              Privacy
-            </Tabs.Tab>
-            <Tabs.Tab value="data" leftSection={<Database size={16} />}>
-              Data
-            </Tabs.Tab> */}
-          </Tabs.List>
-          <Tabs.Panel value="appearance">
-            <Card className="gaming-card" withBorder padding="lg">
-              <Text fw={500} size="lg" mb="xs">
-                Theme & Visual Settings
-              </Text>
-              <Text c="dimmed" size="sm" mb="lg">
-                Customize the look and feel of your App (Dark Mode is better for gaming and visual
-                comfort)
-              </Text>
-              <ThemeToggler />
-            </Card>
-          </Tabs.Panel>
-        </Tabs>
-      </Container>
-    </>
+  const clearCache = async (): Promise<void> => {
+    setClearing(true)
+    setCacheNote(null)
+    try {
+      const removed = await window.api.clearCache()
+      setCacheNote(`Removed ${removed} cached ${removed === 1 ? 'response' : 'responses'}.`)
+      // Renderer-side caches (Explore pages, game details) live in memory; a reload drops them.
+      setTimeout(() => window.location.reload(), 900)
+    } catch (err) {
+      setCacheNote(getErrorMessage(err, 'Could not clear the cache.'))
+    } finally {
+      setClearing(false)
+    }
+  }
+
+  return (
+    <Container size="lg" py="xs">
+      <h1 className={classes.title}>Settings</h1>
+
+      <div className={classes.list}>
+        <Setting
+          icon={<IconCpu size={28} stroke={1.5} />}
+          title="Hardware scan"
+          description="Re-read your CPU, GPU and memory, for example after an upgrade or a driver update."
+        >
+          <Button
+            leftSection={<IconRefresh size={16} />}
+            loading={scanning}
+            onClick={() => void scan()}
+          >
+            Rescan now
+          </Button>
+          {scanError && (
+            <Text size="xs" c="red.4" mt={6}>
+              {scanError}
+            </Text>
+          )}
+        </Setting>
+
+        <Setting
+          icon={<IconDatabase size={28} stroke={1.5} />}
+          title="Game data cache"
+          description="Game lists, details and searches are kept on this PC so pages open instantly and work offline. Clear it if something looks out of date."
+        >
+          <Button
+            variant="default"
+            leftSection={<IconTrash size={16} />}
+            loading={clearing}
+            onClick={() => void clearCache()}
+          >
+            Clear cache
+          </Button>
+          {cacheNote && (
+            <Text size="xs" c="dimmed" mt={6}>
+              {cacheNote}
+            </Text>
+          )}
+        </Setting>
+      </div>
+    </Container>
   )
 }
 

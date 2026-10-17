@@ -1,0 +1,72 @@
+.title {
+  margin: 0 0 24px;
+  font-family: var(--cig-display);
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 0.95;
+  text-transform: uppercase;
+  color: var(--cig-silk);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.setting {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 24px;
+  border: 1px solid var(--cig-seam);
+  border-radius: var(--mantine-radius-lg);
+  background: var(--cig-plate);
+}
+
+.tile {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cig-accent);
+}
+
+.text {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cig-silk);
+}
+
+.description {
+  margin: 4px 0 0;
+  max-width: 62ch;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--cig-silk-2);
+}
+
+.action {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+@media (max-width: $mantine-breakpoint-md) {
+  .setting {
+    flex-wrap: wrap;
+  }
+
+  .action {
+    align-items: flex-start;
+    width: 100%;
+    padding-left: 66px;
+  }
+}

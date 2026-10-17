@@ -4,5 +4,83 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+/* Desktop-app chrome is not selectable; content (specs, requirements, descriptions) is. */
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
   user-select: none;
+  -webkit-font-smoothing: antialiased;
+  caret-color: var(--cig-accent);
+}
+
+main,
+input,
+textarea,
+[contenteditable] {
+  user-select: text;
+}
+
+::selection {
+  background: rgba(237, 84, 27, 0.35);
+  color: var(--cig-silk);
+}
+
+/* Numbers in data line up in columns everywhere. */
+code,
+kbd,
+.mantine-Table-td,
+.mantine-Table-th {
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid var(--cig-accent);
+  outline-offset: 2px;
+}
+
+/* Scrollbars belong to the board, not the OS. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--cig-seam-strong) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--cig-seam-strong);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Lift for gradient primary buttons: a lit top edge and a soft ember shadow. */
+.mantine-Button-root[data-variant='filled']:not(:disabled):not([data-disabled]) {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 10px 22px -12px rgba(210, 66, 26, 0.9);
+}
+
+/*
+ * Data tone: one orange family, always as a gradient (never a flat fill). Containers set
+ * `data-tone`; meters, sparklines, icon tiles and washes read these variables.
+ */
+[data-tone] {
+  --tone-a: #ffb547;
+  --tone-b: #ed541b;
+  --tone-solid: #ff8a4c;
+  --tone-wash: rgba(237, 84, 27, 0.15);
+  --tone-gradient: linear-gradient(90deg, var(--tone-a), var(--tone-b));
 }

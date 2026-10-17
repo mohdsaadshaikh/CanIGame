@@ -1,112 +1,56 @@
-import { ActionIcon, Burger, Flex, TextInput } from '@mantine/core'
-import { Spotlight, spotlight } from '@mantine/spotlight'
-import {
-  IconDashboard,
-  IconFileText,
-  IconHome,
-  IconMinus,
-  IconSearch,
-  IconSquare,
-  IconX
-} from '@tabler/icons-react'
-import React from 'react'
+import { Burger } from '@mantine/core'
+import type { WindowAction } from '@shared/ipc'
+import { IconMinus, IconSquare, IconX } from '@tabler/icons-react'
+import { GameSearch } from './GameSearch'
+import classes from './Header.module.css'
 import Logo from './Logo'
-const actions = [
-  {
-    id: 'home',
-    label: 'Home',
-    description: 'Get to home page',
-    onClick: () => console.log('Home'),
-    leftSection: <IconHome size={24} stroke={1.5} />
-  },
-  {
-    id: 'dashboard',
-    label: 'Dashboard',
-    description: 'Get full information about current system status',
-    onClick: () => console.log('Dashboard'),
-    leftSection: <IconDashboard size={24} stroke={1.5} />
-  },
-  {
-    id: 'documentation',
-    label: 'Documentation',
-    description: 'Visit documentation to lean more about all features',
-    onClick: () => console.log('Documentation'),
-    leftSection: <IconFileText size={24} stroke={1.5} />
-  }
-]
-const Header: React.FC<HeaderProps> = ({ opened, toggle }) => {
-  const handleAction = (action: 'minimize' | 'maximize' | 'close'): void => {
-    window.api.windowControl(action)
-  }
 
+interface HeaderProps {
+  opened: boolean
+  toggle: () => void
+}
+
+const WINDOW_CONTROLS: { action: WindowAction; label: string; icon: React.JSX.Element }[] = [
+  { action: 'minimize', label: 'Minimize', icon: <IconMinus size={16} stroke={1.5} /> },
+  { action: 'maximize', label: 'Maximize', icon: <IconSquare size={13} stroke={1.5} /> },
+  { action: 'close', label: 'Close', icon: <IconX size={17} stroke={1.5} /> }
+]
+
+const Header = ({ opened, toggle }: HeaderProps): React.JSX.Element => {
   return (
-    <Flex
-      align="center"
-      mt="xs"
-      px="xs"
-      justify="space-between"
-      style={{ WebkitAppRegion: 'drag' }}
-    >
-      <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-      <Flex gap="70px" align="center" ml="md">
-        <Logo />
-        <TextInput
-          onClick={spotlight.open}
-          placeholder="Search..."
-          leftSection={<IconSearch size={16} />}
-          radius="sm"
-          size="xs"
-          w={{ base: '100%', sm: 300, md: 400, lg: 600 }}
-        />
-      </Flex>
-      <Spotlight
-        actions={actions}
-        nothingFound="Nothing found..."
-        highlightQuery
-        searchProps={{
-          leftSection: <IconSearch size={20} stroke={1.5} />,
-          placeholder: 'Search...'
-        }}
+    <div className={classes.bar}>
+      <Burger
+        opened={opened}
+        onClick={toggle}
+        hiddenFrom="sm"
+        size="sm"
+        className={`${classes.noDrag} ${classes.burger}`}
+        aria-label="Toggle navigation"
       />
-      <Flex gap={8} style={{ WebkitAppRegion: 'no-drag', alignItems: 'center' }}>
-        <ActionIcon
-          variant="subtle"
-          color="gray"
-          size="md"
-          radius="xl"
-          aria-label="Minimize"
-          onClick={() => handleAction('minimize')}
-          style={{ transition: 'background 0.2s', ':hover': { background: '#e0e0e0' } }}
-        >
-          <IconMinus size={18} stroke={2} />
-        </ActionIcon>
-        <ActionIcon
-          variant="subtle"
-          color="gray"
-          size="lg"
-          radius="xl"
-          aria-label="Maximize"
-          onClick={() => handleAction('maximize')}
-          style={{ transition: 'background 0.2s', ':hover': { background: '#e0e0e0' } }}
-        >
-          <IconSquare size={18} stroke={2} />
-        </ActionIcon>
-        <ActionIcon
-          variant="light"
-          size="lg"
-          radius="xl"
-          aria-label="Close"
-          onClick={() => handleAction('close')}
-          style={{
-            transition: 'background 0.2s',
-            ':hover': { background: '#ffdddd' }
-            // color: '#d7263d'
-          }}
-        >
-          <IconX size={18} stroke={2.5} />
-        </ActionIcon>
-      </Flex>
-    </Flex>
+
+      <div className={classes.brand}>
+        <Logo />
+      </div>
+
+      {/* Empty middle: part of the drag handle. Search lives on Explore (Ctrl/Cmd+K opens the palette). */}
+      <div className={classes.center} />
+
+      <div className={classes.controls}>
+        {WINDOW_CONTROLS.map(({ action, label, icon }) => (
+          <button
+            key={action}
+            type="button"
+            aria-label={label}
+            className={action === 'close' ? `${classes.control} ${classes.close}` : classes.control}
+            onClick={() => void window.api.windowControl(action)}
+          >
+            {icon}
+          </button>
+        ))}
+      </div>
+
+      <GameSearch />
+    </div>
   )
 }
 

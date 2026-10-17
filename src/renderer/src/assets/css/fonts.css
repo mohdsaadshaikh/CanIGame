@@ -1,53 +1,99 @@
+/* Self-hosted (CSP font-src 'self'). Barlow: UI voice. Martian Mono: designators, numbers, keys. */
+
 @font-face {
-  font-family: 'Audiowide';
-  src: url('../fonts/Audiowide-Regular.ttf') format('truetype');
-  font-weight: normal;
+  font-family: 'Barlow';
+  src: url('../fonts/Barlow-Regular.woff2') format('woff2');
+  font-weight: 400;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-  font-family: 'OrbitronRegular';
-  src: url('../fonts/Orbitron-Regular.ttf') format('truetype');
-  font-weight: normal;
+  font-family: 'Barlow';
+  src: url('../fonts/Barlow-Medium.woff2') format('woff2');
+  font-weight: 500;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-  font-family: 'OrbitronMedium';
-  src: url('../fonts/Orbitron-Medium.ttf') format('truetype');
-  font-weight: normal;
+  font-family: 'Barlow';
+  src: url('../fonts/Barlow-SemiBold.woff2') format('woff2');
+  font-weight: 600;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-  font-family: 'OrbitronSemiBold';
-  src: url('../fonts/Orbitron-SemiBold.ttf') format('truetype');
-  font-weight: normal;
+  font-family: 'Barlow';
+  src: url('../fonts/Barlow-Bold.woff2') format('woff2');
+  font-weight: 700;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-  font-family: 'OrbitronBold';
-  src: url('../fonts/Orbitron-Bold.ttf') format('truetype');
-  font-weight: normal;
+  font-family: 'Martian Mono';
+  src: url('../fonts/MartianMono-Variable.woff2') format('woff2');
+  font-weight: 100 800;
   font-style: normal;
+  font-display: swap;
+}
+
+/* Display voice: GPU-box and broadcast-graphics condensed caps. */
+@font-face {
+  font-family: 'Barlow Condensed';
+  src: url('../fonts/BarlowCondensed-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-  font-family: 'OrbitronExtraBold';
-  src: url('../fonts/Orbitron-ExtraBold.ttf') format('truetype');
-  font-weight: normal;
+  font-family: 'Barlow Condensed';
+  src: url('../fonts/BarlowCondensed-Bold.woff2') format('woff2');
+  font-weight: 700;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-  font-family: 'Russo One';
-  src: url('../fonts/RussoOne-Regular.ttf') format('truetype');
-  font-weight: normal;
+  font-family: 'Barlow Condensed';
+  src: url('../fonts/BarlowCondensed-ExtraBold.woff2') format('woff2');
+  font-weight: 800;
   font-style: normal;
+  font-display: swap;
 }
-.bold-orbitron {
-  font-family: 'Orbitron', sans-serif !important;
-  font-weight: 700 !important;
-  font-style: normal !important;
+
+/* UI voice: Poppins (body, controls, navigation). */
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/Poppins-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/Poppins-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/Poppins-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../fonts/Poppins-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
 }

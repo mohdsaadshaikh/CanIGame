@@ -1,0 +1,28 @@
+.scroller {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: clamp(220px, calc((100% - 3 * 16px) / 4), 320px);
+  gap: 16px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  /* Room for the tile's 2px lift and focus ring so the overflow doesn't clip them. */
+  padding: 4px 4px 8px;
+  margin: -4px -4px -8px;
+}
+
+.scroller::-webkit-scrollbar {
+  display: none;
+}
+
+.item {
+  scroll-snap-align: start;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroller {
+    scroll-behavior: auto;
+  }
+}

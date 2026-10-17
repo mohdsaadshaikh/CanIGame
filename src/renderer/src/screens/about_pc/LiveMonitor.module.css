@@ -1,0 +1,147 @@
+.monitor {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.monitor[data-paused] .gauge {
+  opacity: 0.6;
+}
+
+.gauge {
+  position: relative;
+  overflow: hidden;
+  padding: 18px 20px 20px;
+  border: 1px solid var(--cig-seam);
+  border-radius: var(--mantine-radius-lg);
+  background: var(--cig-plate);
+  transition: opacity 200ms ease;
+}
+
+.gaugeHead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gaugeIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tone-solid);
+}
+
+.gaugeTitle {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.gaugeLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--cig-silk);
+}
+
+.gaugeDetail {
+  font-size: 12px;
+  color: var(--cig-silk-3);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.gaugeValue {
+  margin-top: 14px;
+  font-family: var(--cig-display);
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--cig-silk);
+}
+
+.gaugeUnit {
+  margin-left: 4px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--cig-silk-2);
+}
+
+.meter {
+  height: 6px;
+  margin-top: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--cig-raised);
+}
+
+.meterFill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--tone-gradient);
+  transition: width 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* History line, drawn behind the lower half of the gauge. */
+.spark {
+  display: block;
+  width: 100%;
+  height: 36px;
+  margin-top: 12px;
+}
+
+.sparkLine {
+  fill: none;
+  stroke: var(--tone-solid);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.sparkFill {
+  fill: var(--tone-wash);
+  stroke: none;
+}
+
+/* Per-thread load: one bar per logical core, height = load. */
+.cores {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 28px;
+  margin-top: 12px;
+}
+
+.core {
+  flex: 1;
+  align-self: flex-end;
+  border-radius: 2px;
+  transition:
+    height 600ms cubic-bezier(0.16, 1, 0.3, 1),
+    background 600ms ease;
+  cursor: default;
+}
+
+.gpuFacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--cig-silk-2);
+}
+
+.gpuFacts b {
+  font-weight: 600;
+  color: var(--cig-silk);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .meterFill,
+  .core {
+    transition: none;
+  }
+}

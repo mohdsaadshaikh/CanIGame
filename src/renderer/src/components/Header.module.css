@@ -1,0 +1,76 @@
+/*
+ * The whole bar is the window's drag handle (frameless window). Every interactive
+ * child opts out with `no-drag`, otherwise the OS swallows its clicks.
+ */
+.bar {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  -webkit-app-region: drag;
+}
+
+.noDrag {
+  -webkit-app-region: no-drag;
+}
+
+.burger {
+  margin-left: 12px;
+}
+
+/* Brand cell: same width as the sidebar so its seam runs unbroken to the top. */
+.brand {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 20px;
+}
+
+@media (min-width: $mantine-breakpoint-sm) {
+  .brand {
+    width: 232px;
+    border-right: 1px solid var(--cig-seam);
+  }
+}
+
+/* Empty middle of the bar: drag handle only. */
+.center {
+  flex: 1;
+  align-self: stretch;
+}
+
+.controls {
+  -webkit-app-region: no-drag;
+  display: flex;
+  align-self: stretch;
+  margin-left: auto;
+}
+
+/* Native-style caption buttons: full bar height, square hover fill. */
+.control {
+  width: 46px;
+  border-radius: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--cig-silk-2);
+  cursor: pointer;
+  transition:
+    background 100ms ease,
+    color 100ms ease;
+}
+
+.control:hover {
+  color: var(--cig-silk);
+  background: var(--cig-raised);
+}
+
+.control:focus-visible {
+  outline-offset: -2px;
+}
+
+.close:hover {
+  color: #fff;
+  background: #c42b1c;
+}

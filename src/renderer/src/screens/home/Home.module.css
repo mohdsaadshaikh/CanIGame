@@ -1,0 +1,52 @@
+.heroSkeleton {
+  height: 400px;
+}
+
+/* Content stacks above the ambient layer inside its own stacking context. */
+.page {
+  position: relative;
+  isolation: isolate;
+}
+
+/*
+ * Ambient key art: the active featured game, heavily blurred, fixed behind the top of the
+ * page and fading into the ground. Cross-fades with the slider. The games are the atmosphere.
+ */
+.ambient {
+  position: fixed;
+  top: var(--app-shell-header-offset, 56px);
+  left: var(--app-shell-navbar-offset, 0px);
+  right: 0;
+  height: 80vh;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.ambientImage {
+  position: absolute;
+  inset: -80px;
+  width: calc(100% + 160px);
+  height: calc(100% + 160px);
+  object-fit: cover;
+  filter: blur(60px) saturate(1.35);
+  opacity: 0;
+  transition: opacity 1400ms ease;
+}
+
+.ambientImage[data-active] {
+  opacity: var(--cig-ambient-opacity);
+}
+
+.ambient::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 0%, var(--cig-ground) 92%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambientImage {
+    transition: none;
+  }
+}

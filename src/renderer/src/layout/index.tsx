@@ -1,36 +1,43 @@
 import { AppShell } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
+import Header from '@renderer/components/Header'
 import Sidebar from '@renderer/components/Sidebar'
-import { Outlet } from 'react-router-dom'
-import Header from '../components/Header'
+import { useEffect } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
+import { scrollToTop } from '@renderer/utils/scroll'
+import classes from './Layout.module.css'
+
+export const HEADER_HEIGHT = 56
+export const NAVBAR_WIDTH = 232
 
 const AppLayout = (): React.JSX.Element => {
-  const [opened, { toggle }] = useDisclosure()
+  const [opened, { toggle, close }] = useDisclosure()
+  const { pathname } = useLocation()
+
+  // On narrow windows the navbar is an overlay; close it after navigating. New pages start
+  // at the top of the scroll container (Explore restores its own position afterwards).
+  useEffect(() => {
+    close()
+    scrollToTop()
+  }, [pathname, close])
 
   return (
     <AppShell
-      header={{ height: 70 }}
-      navbar={{
-        width: 250,
-        breakpoint: 'sm',
-        collapsed: { mobile: !opened }
-      }}
-      padding="md"
+      header={{ height: HEADER_HEIGHT }}
+      navbar={{ width: NAVBAR_WIDTH, breakpoint: 'sm', collapsed: { mobile: !opened } }}
+      padding="lg"
+      classNames={{ header: classes.header, navbar: classes.navbar, main: classes.main }}
     >
       <AppShell.Header withBorder={false}>
         <Header opened={opened} toggle={toggle} />
       </AppShell.Header>
 
-      <AppShell.Navbar p="md" withBorder={false}>
-        <div style={{ fontFamily: 'OrbitronExtraBold' }}>
-          <Sidebar />
-        </div>
+      <AppShell.Navbar withBorder={false}>
+        <Sidebar />
       </AppShell.Navbar>
 
       <AppShell.Main>
-        <div style={{ fontFamily: 'Russo One' }}>
-          <Outlet />
-        </div>
+        <Outlet />
       </AppShell.Main>
     </AppShell>
   )

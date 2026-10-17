@@ -1,0 +1,77 @@
+.content {
+  border: 1px solid var(--cig-seam-strong);
+  border-radius: var(--mantine-radius-lg);
+  background: var(--cig-panel);
+  box-shadow: var(--mantine-shadow-lg);
+}
+
+.search {
+  font-size: 16px;
+}
+
+/* Mantine renders the group label through `::before` with `content: attr(data-label)`. */
+.group::before {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cig-silk-3);
+}
+
+.action {
+  border-radius: 10px;
+}
+
+.action[data-selected] {
+  background: var(--cig-raised);
+}
+
+.result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  width: 100%;
+}
+
+.thumb {
+  width: 72px;
+  height: 40px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--cig-raised);
+}
+
+.pageIcon {
+  width: 72px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--cig-seam);
+  border-radius: 8px;
+  color: var(--cig-silk-2);
+}
+
+.action[data-selected] .pageIcon {
+  color: var(--cig-accent);
+}
+
+.text {
+  min-width: 0;
+  flex: 1;
+}
+
+.meta {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 11px;
+  color: var(--cig-silk-3);
+}
+
+.hint {
+  padding: var(--mantine-spacing-md);
+  text-align: center;
+  font-size: 14px;
+  color: var(--cig-silk-2);
+}

@@ -1,0 +1,121 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  gap: 16px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ---------- List row ---------- */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  padding: 8px 18px 8px 8px;
+  border: 1px solid var(--cig-seam);
+  border-radius: var(--mantine-radius-lg);
+  background: var(--cig-plate);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 150ms ease,
+    background 150ms ease;
+}
+
+.row:hover {
+  border-color: var(--cig-accent-fill);
+  background: var(--cig-raised);
+}
+
+.row:focus-visible {
+  outline-offset: 2px;
+}
+
+.rowArt {
+  width: 168px;
+  aspect-ratio: 16 / 9;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--cig-raised);
+}
+
+.rowArt img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rowMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.rowName {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--cig-silk);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rowMeta {
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--cig-silk-2);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rowStats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.rating {
+  background: var(--cig-accent-gradient);
+  color: #fff;
+}
+
+.mc {
+  background: rgba(64, 192, 87, 0.16);
+  color: #69db7c;
+}
+
+.year {
+  background: var(--cig-raised);
+  color: var(--cig-silk-2);
+}
+
+/* ---------- Skeleton tile ---------- */
+
+.skeletonTile {
+  padding: 8px;
+  border: 1px solid var(--cig-seam);
+  border-radius: var(--mantine-radius-lg);
+  background: var(--cig-plate);
+}

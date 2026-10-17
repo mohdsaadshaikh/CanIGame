@@ -1,36 +1,42 @@
-import { Game } from 'src/types/games'
 import {
-  IconPlaystationSquare,
-  IconBrandXbox,
   IconBrandWindows,
-  IconDeviceNintendo
+  IconBrandXbox,
+  IconDeviceNintendo,
+  IconPlaystationSquare
 } from '@tabler/icons-react'
-import { JSX } from 'react'
+import type { JSX } from 'react'
 
-export function getUniquePlatformTypes(platforms: Game['platforms']): string[] {
-  const uniqueTypes = new Set<string>()
-  platforms?.forEach((platform) => {
-    const name = platform.platform.name.toLowerCase()
-    if (name.includes('playstation')) uniqueTypes.add('playstation')
-    else if (name.includes('xbox')) uniqueTypes.add('xbox')
-    else if (name.includes('pc') || name.includes('windows')) uniqueTypes.add('pc')
-    else if (name.includes('nintendo')) uniqueTypes.add('nintendo')
-  })
-  return Array.from(uniqueTypes)
+export type PlatformFamily = 'pc' | 'playstation' | 'xbox' | 'nintendo'
+
+/** Structural type so both list (`GamePlatform`) and detail (`GameDetailsPlatform`) entries fit. */
+interface HasPlatformName {
+  platform: { name: string }
 }
 
-export function mapPlatformIcons(types: string[]): { name: string; icon: JSX.Element }[] {
-  const icons: Record<string, JSX.Element> = {
-    playstation: <IconPlaystationSquare size={20} />,
-    xbox: <IconBrandXbox size={20} />,
-    pc: <IconBrandWindows size={20} />,
-    nintendo: <IconDeviceNintendo size={20} />
-  }
+/** Collapse "PlayStation 4", "PlayStation 5"… into one family so the card shows one icon each. */
+export function getUniquePlatformTypes(
+  platforms: readonly HasPlatformName[] | undefined
+): PlatformFamily[] {
+  const families = new Set<PlatformFamily>()
+  platforms?.forEach(({ platform }) => {
+    const name = platform.name.toLowerCase()
+    if (name.includes('playstation')) families.add('playstation')
+    else if (name.includes('xbox')) families.add('xbox')
+    else if (name.includes('pc') || name.includes('windows')) families.add('pc')
+    else if (name.includes('nintendo')) families.add('nintendo')
+  })
+  return Array.from(families)
+}
 
-  return types
-    .filter((type) => icons[type])
-    .map((type) => ({
-      name: type,
-      icon: icons[type]
-    }))
+const PLATFORM_ICONS: Record<PlatformFamily, JSX.Element> = {
+  playstation: <IconPlaystationSquare size={20} />,
+  xbox: <IconBrandXbox size={20} />,
+  pc: <IconBrandWindows size={20} />,
+  nintendo: <IconDeviceNintendo size={20} />
+}
+
+export function mapPlatformIcons(
+  families: PlatformFamily[]
+): { name: PlatformFamily; icon: JSX.Element }[] {
+  return families.map((name) => ({ name, icon: PLATFORM_ICONS[name] }))
 }
