@@ -69,7 +69,7 @@ export const links: NavItem[] = [
 ]
 
 /**
- * Inline SVG shown when RAWG has no artwork. A data: URI keeps it CSP-compliant
+ * Inline SVG shown when Steam has no artwork for a game. A data: URI keeps it CSP-compliant
  * (`img-src data:`) without shipping an extra asset.
  */
 export const GAME_IMAGE_PLACEHOLDER =

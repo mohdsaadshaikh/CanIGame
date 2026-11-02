@@ -1,4 +1,7 @@
-/* Self-hosted (CSP font-src 'self'). Barlow: UI voice. Martian Mono: designators, numbers, keys. */
+/*
+ * Self-hosted (CSP font-src 'self'). Barlow Condensed italic 800/900: the display voice (titles,
+ * stats, buttons). Poppins: body. Martian Mono: labels, designators, numbers. See DESIGN.md.
+ */
 
 @font-face {
   font-family: 'Barlow';
@@ -66,6 +69,22 @@
 }
 
 /* UI voice: Poppins (body, controls, navigation). */
+@font-face {
+  font-family: 'Barlow Condensed';
+  src: url('../fonts/BarlowCondensed-ExtraBoldItalic.woff2') format('woff2');
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Barlow Condensed';
+  src: url('../fonts/BarlowCondensed-BlackItalic.woff2') format('woff2');
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
 @font-face {
   font-family: 'Poppins';
   src: url('../fonts/Poppins-Regular.woff2') format('woff2');

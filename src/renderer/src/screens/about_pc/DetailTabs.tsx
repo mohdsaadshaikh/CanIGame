@@ -65,9 +65,9 @@ function Meter({ percent }: { percent: number }): React.JSX.Element {
 
 const Pending = (): React.JSX.Element => (
   <div className={classes.pending}>
-    <Skeleton height={86} radius={14} />
-    <Skeleton height={86} radius={14} />
-    <Skeleton height={86} radius={14} />
+    <Skeleton height={86} radius="lg" />
+    <Skeleton height={86} radius="lg" />
+    <Skeleton height={86} radius="lg" />
     <p className={classes.pendingNote}>
       Reading full hardware details. The first scan takes about 15 seconds; after that it is cached.
     </p>

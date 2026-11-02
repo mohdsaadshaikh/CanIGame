@@ -1,6 +1,6 @@
 /*
- * Sidebar in the app's own language: the UI face, rounded like the panels, and the active
- * item is the same gradient pill as the app's primary buttons.
+ * Sidebar (DESIGN.md): nav in loud italic display caps, section labels in tracked mono. The
+ * active item sits on a skewed plate lit from the left by the accent. No borders, no boxes.
  */
 
 .root {
@@ -15,88 +15,112 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   scrollbar-width: none;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 26px;
 }
 
 .nav::-webkit-scrollbar {
   display: none;
 }
 
-/* Section label: small and quiet, no rule. */
+/* Section label: tracked mono caps, no rule. */
 .groupLabel {
-  padding: 0 16px 8px;
-  font-size: 12px;
+  padding: 0 16px 10px;
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 10px;
   font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
   color: var(--cig-silk-3);
 }
 
 .list {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .link {
+  position: relative;
+  isolation: isolate;
   display: flex;
   align-items: center;
   gap: 14px;
-  height: 44px;
-  padding: 0 16px;
-  border-radius: 999px;
-  font-size: 14px;
-  font-weight: 500;
+  height: 46px;
+  padding: 0 18px;
+  font-family: var(--cig-display);
+  font-size: 20px;
+  font-style: italic;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
   text-decoration: none;
   color: var(--cig-silk-2);
   transition:
-    color 120ms ease,
-    background 150ms ease,
-    box-shadow 150ms ease;
+    color 180ms var(--cig-ease),
+    transform 220ms var(--cig-pop);
+}
+
+/* The plate: skewed, so the text and icon stay upright. */
+.link::before {
+  content: '';
+  position: absolute;
+  inset: 0 4px;
+  z-index: -1;
+  transform: skewX(var(--cig-skew));
+  background: transparent;
+  transition: background 180ms var(--cig-ease);
 }
 
 .link:hover {
   color: var(--cig-silk);
+  transform: translateX(4px);
+}
+
+.link:hover::before {
   background: var(--cig-panel);
 }
 
 .link:focus-visible {
-  outline-offset: 2px;
+  outline-offset: -2px;
 }
 
 .icon {
   display: flex;
 }
 
-/* Active: a dark pill lit by a soft orange glow from the left, not a solid fill. */
+/* Active: lit by the accent from the left. No outline, no solid fill. */
 .active,
 .active:hover {
   color: var(--cig-silk);
-  font-weight: 600;
+  transform: none;
+}
+
+.active::before,
+.active:hover::before {
   background:
     linear-gradient(
       90deg,
-      rgba(237, 84, 27, 0.32) 0%,
-      rgba(237, 84, 27, 0.06) 70%,
+      rgba(237, 84, 27, 0.42) 0%,
+      rgba(237, 84, 27, 0.08) 70%,
       transparent 100%
     ),
     var(--cig-panel);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 122, 69, 0.32),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .active .icon {
   color: var(--cig-accent);
 }
 
-/* ---------- Games list (recently viewed, or popular as a fallback) ---------- */
+/* ---------- Games list (recently viewed, or top sellers as a fallback) ---------- */
 
 .games {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .game {
@@ -104,23 +128,25 @@
   align-items: center;
   gap: 12px;
   padding: 6px 8px;
-  border-radius: 14px;
   color: inherit;
   text-decoration: none;
-  transition: background 150ms ease;
+  transition:
+    background 180ms var(--cig-ease),
+    transform 220ms var(--cig-pop);
 }
 
 .game:hover {
   background: var(--cig-panel);
+  transform: translateX(4px);
 }
 
 .thumb {
   width: 40px;
   height: 40px;
   flex-shrink: 0;
-  border-radius: 10px;
   object-fit: cover;
   background: var(--cig-raised);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
 }
 
 .gameText {
@@ -136,10 +162,15 @@
 }
 
 .gameName {
-  font-size: 13px;
-  font-weight: 500;
+  font-family: var(--cig-display);
+  font-size: 16px;
+  font-style: italic;
+  font-weight: 800;
+  line-height: 1.05;
+  text-transform: uppercase;
   color: var(--cig-silk-2);
-  transition: color 120ms ease;
+  padding-right: 3px;
+  transition: color 180ms var(--cig-ease);
 }
 
 .game:hover .gameName {
@@ -147,6 +178,20 @@
 }
 
 .gameGenre {
-  font-size: 12px;
+  margin-top: 2px;
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 9.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--cig-silk-3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link,
+  .link:hover,
+  .game,
+  .game:hover {
+    transition: none;
+    transform: none;
+  }
 }

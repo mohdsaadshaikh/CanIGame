@@ -1,22 +1,22 @@
 import { getErrorMessage } from '@renderer/utils/errors'
 import type { GamesQuery } from '@shared/ipc'
-import type { Game, GameListResponse } from '@shared/types/games'
+import type { Game, GameListPage } from '@shared/types/games'
 import { useCallback, useEffect, useState } from 'react'
 
 /**
  * Module-level cache so returning to a screen renders instantly instead of
- * re-hitting RAWG (and its rate limit) on every navigation.
+ * re-asking main (and, past its cache, Steam's rate limit) on every navigation.
  */
 const CACHE_TTL_MS = 5 * 60_000
-const cache = new Map<string, { data: GameListResponse; fetchedAt: number }>()
-const inFlight = new Map<string, Promise<GameListResponse>>()
+const cache = new Map<string, { data: GameListPage; fetchedAt: number }>()
+const inFlight = new Map<string, Promise<GameListPage>>()
 
-function readFresh(key: string): GameListResponse | null {
+function readFresh(key: string): GameListPage | null {
   const entry = cache.get(key)
   return entry && Date.now() - entry.fetchedAt < CACHE_TTL_MS ? entry.data : null
 }
 
-function fetchGames(key: string, query: GamesQuery): Promise<GameListResponse> {
+function fetchGames(key: string, query: GamesQuery): Promise<GameListPage> {
   // Dedupe concurrent identical requests (e.g. StrictMode's double effect run).
   const pending = inFlight.get(key)
   if (pending) return pending
@@ -52,13 +52,13 @@ export function useGames(query: GamesQuery): UseGamesResult {
   const [attempt, setAttempt] = useState(0)
   const [state, setState] = useState<State>(() => {
     const cached = readFresh(key)
-    return { games: cached?.results ?? [], loading: cached === null, error: null }
+    return { games: cached?.games ?? [], loading: cached === null, error: null }
   })
 
   useEffect(() => {
     const cached = readFresh(key)
     if (cached) {
-      setState({ games: cached.results ?? [], loading: false, error: null })
+      setState({ games: cached.games, loading: false, error: null })
       return
     }
 
@@ -66,7 +66,7 @@ export function useGames(query: GamesQuery): UseGamesResult {
     setState((previous) => ({ ...previous, loading: true, error: null }))
     fetchGames(key, JSON.parse(key) as GamesQuery)
       .then((data) => {
-        if (!cancelled) setState({ games: data.results ?? [], loading: false, error: null })
+        if (!cancelled) setState({ games: data.games, loading: false, error: null })
       })
       .catch((err: unknown) => {
         if (!cancelled) {

@@ -13,7 +13,7 @@ const api: Api = {
   getLiveStats: () => ipcRenderer.invoke(IPC_CHANNELS.GET_LIVE_STATS),
   getLiveGpu: () => ipcRenderer.invoke(IPC_CHANNELS.GET_LIVE_GPU),
   getGames: (query: GamesQuery) => ipcRenderer.invoke(IPC_CHANNELS.GET_GAMES, query),
-  getGameBySlug: (slug: string) => ipcRenderer.invoke(IPC_CHANNELS.GET_GAME_BY_SLUG, slug),
+  getGame: (appId: number) => ipcRenderer.invoke(IPC_CHANNELS.GET_GAME, appId),
   clearCache: () => ipcRenderer.invoke(IPC_CHANNELS.CLEAR_CACHE)
 }
 

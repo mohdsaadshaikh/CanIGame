@@ -19,7 +19,7 @@ would still feel wrong if it looked like a generic dashboard or too plain.
 ## Constraints
 
 Brand: name CanIGame, orange #ED541B stays the accent. No per-game verdict until the comparison
-engine exists, so never imply pass or fail. Electron CSP: fonts self-hosted, images from RAWG only.
+engine exists, so never imply pass or fail. Electron CSP: fonts self-hosted, images from Steam's image CDN only.
 The featured-games slider is a pinned user request and stays.
 
 ## Direction contract

@@ -1,82 +1,136 @@
+/*
+ * Shop card (DESIGN.md): art bleeds to the edges and fades into the plate, the name rides the
+ * fade in display caps. Chamfered corners; hover wipes in the accent stripe and pops the card.
+ */
 .tile {
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  padding: 8px;
-  border: 1px solid var(--cig-seam);
-  border-radius: var(--mantine-radius-lg);
-  background: var(--cig-plate);
+  padding: 0;
+  border: 0;
+  background: var(--cig-panel);
   color: inherit;
   font: inherit;
   text-align: left;
   cursor: pointer;
+  /* The ring is inset: clip-path would cut an outer one off. */
+  box-shadow: inset 0 0 0 1px var(--cig-hairline);
   transition:
-    border-color 150ms ease,
-    transform 200ms cubic-bezier(0.16, 1, 0.3, 1),
-    box-shadow 200ms ease;
+    transform 220ms var(--cig-pop),
+    box-shadow 180ms var(--cig-ease),
+    background 180ms var(--cig-ease);
 }
 
-.tile:hover {
-  border-color: var(--cig-accent-fill);
-  transform: translateY(-3px);
-  box-shadow: var(--mantine-shadow-md);
+/* Accent stripe along the top edge, wiped in from the left on hover and focus. */
+.tile::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 2;
+  height: 3px;
+  background: var(--cig-accent-gradient);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 260ms var(--cig-ease);
+  pointer-events: none;
 }
 
-.tile:active {
-  transform: translateY(-1px);
+.tile:hover,
+.tile:focus-visible {
+  transform: translateY(-6px) scale(1.02);
+  background: var(--cig-raised);
+  box-shadow: inset 0 0 0 1px rgba(255, 122, 69, 0.55);
+}
+
+.tile:hover::before,
+.tile:focus-visible::before {
+  transform: scaleX(1);
 }
 
 .tile:focus-visible {
-  outline: 2px solid var(--cig-accent);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--cig-accent);
+}
+
+.tile:active {
+  transform: translateY(-2px) scale(0.99);
 }
 
 .media {
-  aspect-ratio: 16 / 10;
+  position: relative;
+  aspect-ratio: 616 / 353;
   overflow: hidden;
-  border-radius: 10px;
   background: var(--cig-raised);
 }
 
+/* The art melts into the plate so the name can sit across the seam. */
+.media::after {
+  content: '';
+  position: absolute;
+  inset: 45% 0 0;
+  background: linear-gradient(to bottom, transparent, var(--cig-panel));
+  transition: background 180ms var(--cig-ease);
+  pointer-events: none;
+}
+
+.tile:hover .media::after,
+.tile:focus-visible .media::after {
+  background: linear-gradient(to bottom, transparent, var(--cig-raised));
+}
+
 .image {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 420ms var(--cig-ease);
 }
 
 .tile:hover .image {
-  transform: scale(1.05);
+  transform: scale(1.06);
 }
 
 .body {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: 12px 6px 4px;
-}
-
-.date {
-  font-family: var(--mantine-font-family-monospace);
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  color: var(--cig-silk-3);
+  margin-top: -26px;
+  padding: 0 14px 14px;
 }
 
 .name {
-  margin-top: 6px;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1.25;
+  font-family: var(--cig-display);
+  font-size: 23px;
+  font-style: italic;
+  font-weight: 900;
+  line-height: 0.95;
+  text-transform: uppercase;
   color: var(--cig-silk);
+  text-shadow: 0 2px 10px rgba(7, 10, 18, 0.7);
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  /* Italic caps lean past the box; keep the last letter from being clipped. */
+  padding-right: 4px;
+}
+
+.date {
+  margin-top: 8px;
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cig-silk-3);
 }
 
 .genres {
-  margin-top: 2px;
+  margin-top: 4px;
   font-size: 13px;
   color: var(--cig-silk-2);
   overflow: hidden;
@@ -86,53 +140,112 @@
 
 .pills {
   display: flex;
-  gap: 6px;
+  gap: 8px;
   margin-top: auto;
-  padding-top: 12px;
-  min-height: 34px;
+  padding: 14px 0 0 4px;
+  min-height: 36px;
 }
 
+/* Skewed tags; the content is counter-skewed so it reads upright. */
 .pill {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
   height: 22px;
   padding: 0 9px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
+  transform: skewX(var(--cig-skew));
+  font-family: var(--cig-display);
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 800;
+  letter-spacing: 0.03em;
   font-variant-numeric: tabular-nums;
 }
 
-/* Rating: the accent pill (dark ink on orange, 5.3:1). */
-.rating {
+.pill > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transform: skewX(calc(var(--cig-skew) * -1));
+}
+
+.discount {
   background: var(--cig-accent-gradient);
   color: #fff;
 }
 
-.mcHigh {
+.price {
+  background: var(--cig-seam);
+  color: var(--cig-silk);
+}
+
+.high {
   background: rgba(64, 192, 87, 0.16);
   color: #69db7c;
 }
 
-.mcMid {
+.mid {
   background: rgba(250, 176, 5, 0.16);
   color: #ffd43b;
 }
 
-.mcLow {
+.low {
   background: rgba(250, 82, 82, 0.16);
   color: #ff8787;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tile,
+  .tile::before,
   .image {
     transition: none;
   }
 
   .tile:hover,
+  .tile:focus-visible,
+  .tile:active,
   .tile:hover .image {
     transform: none;
   }
+}
+
+/* ---------- Legendary rarity (Fortnite shop, in the one orange family) ---------- */
+
+/* Warm plate, a permanent accent stripe and an ember ring: the card reads as a rare drop. */
+.tile[data-legendary] {
+  background:
+    linear-gradient(180deg, var(--cig-panel) 0%, rgba(120, 38, 10, 0.55) 100%), var(--cig-panel);
+  box-shadow: inset 0 0 0 1px rgba(255, 122, 69, 0.4);
+}
+
+.tile[data-legendary]::before {
+  transform: scaleX(1);
+}
+
+.tile[data-legendary] .media::after {
+  background: linear-gradient(to bottom, transparent, rgba(46, 24, 26, 1));
+}
+
+.rarity {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  transform: skewX(var(--cig-skew));
+  background: var(--cig-accent-gradient);
+  box-shadow: 0 2px 0 #7a2408;
+  font-family: var(--cig-display);
+  font-size: 13px;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.rarity > span {
+  transform: skewX(calc(var(--cig-skew) * -1));
 }

@@ -144,7 +144,7 @@ export function RigBoard(): React.JSX.Element {
     content = (
       <>
         <div className={classes.identity}>
-          <Skeleton width={64} height={64} radius={16} />
+          <Skeleton width={64} height={64} radius="lg" />
           <div style={{ flex: 1 }}>
             <h2 id="rig-heading" className={classes.name}>
               Reading hardware
@@ -193,7 +193,7 @@ export function RigBoard(): React.JSX.Element {
       <section
         key={scanCount}
         aria-labelledby="rig-heading"
-        className={classes.profile}
+        className={`${classes.profile} cig-cut`}
         data-fresh={scanCount > 0 || undefined}
       >
         {hardware && <BoardTraces />}

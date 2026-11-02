@@ -22,7 +22,7 @@ function App(): React.JSX.Element {
           <Route path="wishlist" element={page(<Wishlist />)} />
           <Route path="pc" element={page(<AboutPC />)} />
           <Route path="settings" element={page(<Settings />)} />
-          <Route path="game/:slug" element={page(<GameDetails />)} />
+          <Route path="game/:id" element={page(<GameDetails />)} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

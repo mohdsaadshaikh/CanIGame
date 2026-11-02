@@ -1,10 +1,6 @@
 /// <reference types="vite/client" />
 
-interface ImportMetaEnv {
-  /** RAWG API key. Main-process only (MAIN_VITE_ prefix); set in `.env`. */
-  readonly MAIN_VITE_RAWG_API_KEY: string | undefined
-}
-
-interface ImportMeta {
-  readonly env: ImportMetaEnv
-}
+/*
+ * Main-process build-time variables use the MAIN_VITE_ prefix and are declared here.
+ * None are needed right now: the Steam store endpoints the app uses take no API key.
+ */

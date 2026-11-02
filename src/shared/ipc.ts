@@ -1,4 +1,4 @@
-import type { GameDetails, GameListResponse } from './types/games'
+import type { GameDetails, GameListPage } from './types/games'
 import type { HardwareInfo, LiveGpuStats, LiveStats, SystemDetails } from './types/hardware'
 
 /**
@@ -15,7 +15,7 @@ export const IPC_CHANNELS = {
   GET_LIVE_STATS: 'hardware:get-live',
   GET_LIVE_GPU: 'hardware:get-live-gpu',
   GET_GAMES: 'games:list',
-  GET_GAME_BY_SLUG: 'games:get-by-slug',
+  GET_GAME: 'games:get',
   CLEAR_CACHE: 'cache:clear'
 } as const
 
@@ -26,87 +26,47 @@ export function isWindowAction(value: unknown): value is WindowAction {
   return typeof value === 'string' && (WINDOW_ACTIONS as readonly string[]).includes(value)
 }
 
-/** RAWG slugs are lowercase kebab-case; ids are plain integers. Both are accepted by the API. */
-const GAME_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
-const GAME_SLUG_MAX_LENGTH = 200
-
-export function isValidGameSlug(value: unknown): value is string {
-  return (
-    typeof value === 'string' &&
-    value.length <= GAME_SLUG_MAX_LENGTH &&
-    GAME_SLUG_PATTERN.test(value)
-  )
+/** Steam app ids are positive 32-bit integers. */
+export function isValidGameId(value: unknown): value is number {
+  return Number.isInteger(value) && (value as number) > 0 && (value as number) <= 2 ** 31 - 1
 }
 
 // ---------------------------------------------------------------------------
-// Game list query (RAWG GET /games)
+// Game list query (Steam store search)
 // ---------------------------------------------------------------------------
 
-const ORDERING_FIELDS = [
-  'name',
-  'released',
-  'added',
-  'created',
-  'updated',
-  'rating',
-  'metacritic'
-] as const
-type OrderingField = (typeof ORDERING_FIELDS)[number]
-/** RAWG sort key; a leading `-` means descending. */
-export type GameOrdering = OrderingField | `-${OrderingField}`
+/**
+ * Store lists Steam can rank by:
+ * - `topsellers`: current top sellers (also the default relevance order)
+ * - `trending`: popular new releases
+ * - `toprated`: best user-review score
+ * - `upcoming`: popular games that are not out yet
+ * - `specials`: games on sale
+ */
+export const GAME_LISTS = ['topsellers', 'trending', 'toprated', 'upcoming', 'specials'] as const
+export type GameList = (typeof GAME_LISTS)[number]
 
 export interface GamesQuery {
-  /** 1-based. Defaults to 1. */
+  /** 1-based. Defaults to 1. Each page holds `GAMES_PAGE_SIZE` games. */
   page?: number
-  /** Defaults to `GAMES_PAGE_SIZE`; RAWG caps it at 40. */
-  pageSize?: number
-  ordering?: GameOrdering
-  /** Release-date range, `YYYY-MM-DD,YYYY-MM-DD`. */
-  dates?: string
-  /** Metacritic range, `min,max` (0–100). */
-  metacritic?: string
-  /** Only games released on PC. */
-  pcOnly?: boolean
-  /** Free-text name search (1–100 chars after trimming). */
+  /** Defaults to `topsellers`. */
+  list?: GameList
+  /** Free-text name search (1-100 chars after trimming). */
   search?: string
-  /** One RAWG genre slug, e.g. `shooter` or `role-playing-games-rpg`. */
-  genre?: string
+  /** One Steam tag id, e.g. 19 (Action) or 1667 (Horror). */
+  tag?: number
+  /** Only free-to-play games. */
+  free?: boolean
 }
 
-export const GAMES_PAGE_SIZE = 20
-const MAX_GAMES_PAGE_SIZE = 40
-const MAX_GAMES_PAGE = 10_000
-const DATE_RANGE_PATTERN = /^\d{4}-\d{2}-\d{2},\d{4}-\d{2}-\d{2}$/
-const SCORE_RANGE_PATTERN = /^(\d{1,3}),(\d{1,3})$/
-const GAMES_QUERY_KEYS: ReadonlySet<string> = new Set([
-  'page',
-  'pageSize',
-  'ordering',
-  'dates',
-  'metacritic',
-  'pcOnly',
-  'search',
-  'genre'
-])
+export const GAMES_PAGE_SIZE = 25
+const MAX_GAMES_PAGE = 400
+const MAX_TAG_ID = 10_000_000
 const MAX_SEARCH_LENGTH = 100
+const GAMES_QUERY_KEYS: ReadonlySet<string> = new Set(['page', 'list', 'search', 'tag', 'free'])
 
 const isIntInRange = (value: unknown, min: number, max: number): boolean =>
   Number.isInteger(value) && (value as number) >= min && (value as number) <= max
-
-function isValidOrdering(value: unknown): value is GameOrdering {
-  return (
-    typeof value === 'string' &&
-    (ORDERING_FIELDS as readonly string[]).includes(value.replace(/^-/, ''))
-  )
-}
-
-function isValidScoreRange(value: unknown): boolean {
-  if (typeof value !== 'string') return false
-  const match = SCORE_RANGE_PATTERN.exec(value)
-  if (!match) return false
-  const [min, max] = [Number(match[1]), Number(match[2])]
-  return min <= max && max <= 100
-}
 
 /** Strict allow-list check: unknown keys or malformed values reject the whole query. */
 export function isValidGamesQuery(value: unknown): value is GamesQuery {
@@ -114,19 +74,16 @@ export function isValidGamesQuery(value: unknown): value is GamesQuery {
   const query = value as Record<string, unknown>
   if (Object.keys(query).some((key) => !GAMES_QUERY_KEYS.has(key))) return false
 
-  const { page, pageSize, ordering, dates, metacritic, pcOnly, search, genre } = query
+  const { page, list, search, tag, free } = query
   return (
-    (genre === undefined || isValidGameSlug(genre)) &&
+    (page === undefined || isIntInRange(page, 1, MAX_GAMES_PAGE)) &&
+    (list === undefined || (GAME_LISTS as readonly unknown[]).includes(list)) &&
     (search === undefined ||
       (typeof search === 'string' &&
         search.trim().length > 0 &&
         search.length <= MAX_SEARCH_LENGTH)) &&
-    (page === undefined || isIntInRange(page, 1, MAX_GAMES_PAGE)) &&
-    (pageSize === undefined || isIntInRange(pageSize, 1, MAX_GAMES_PAGE_SIZE)) &&
-    (ordering === undefined || isValidOrdering(ordering)) &&
-    (dates === undefined || (typeof dates === 'string' && DATE_RANGE_PATTERN.test(dates))) &&
-    (metacritic === undefined || isValidScoreRange(metacritic)) &&
-    (pcOnly === undefined || typeof pcOnly === 'boolean')
+    (tag === undefined || isIntInRange(tag, 1, MAX_TAG_ID)) &&
+    (free === undefined || typeof free === 'boolean')
   )
 }
 
@@ -138,8 +95,9 @@ export interface Api {
   getLiveStats: () => Promise<LiveStats>
   /** null when there is no NVIDIA GPU or nvidia-smi is not available. */
   getLiveGpu: () => Promise<LiveGpuStats | null>
-  getGames: (query: GamesQuery) => Promise<GameListResponse>
-  getGameBySlug: (slug: string) => Promise<GameDetails>
-  /** Deletes cached RAWG responses; returns how many entries were removed. */
+  getGames: (query: GamesQuery) => Promise<GameListPage>
+  /** Full store record for one Steam app id, with review summary and PC requirements. */
+  getGame: (appId: number) => Promise<GameDetails>
+  /** Deletes cached Steam responses; returns how many entries were removed. */
   clearCache: () => Promise<number>
 }

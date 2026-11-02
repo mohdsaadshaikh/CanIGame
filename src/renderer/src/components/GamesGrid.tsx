@@ -1,9 +1,10 @@
 import { Skeleton } from '@mantine/core'
-import { rawgImage } from '@renderer/utils/images'
+import { releaseShort, reviewTone } from '@renderer/utils/games'
 import type { Game } from '@shared/types/games'
-import { IconStarFilled } from '@tabler/icons-react'
+import { IconThumbUpFilled } from '@tabler/icons-react'
 import { GameTile } from './GameTile'
 import classes from './GamesGrid.module.css'
+import { SteamImage } from './SteamImage'
 
 export type ViewMode = 'grid' | 'list'
 
@@ -25,34 +26,36 @@ const GameListRow = ({
 }): React.JSX.Element => (
   <button
     type="button"
-    className={classes.row}
+    className={`${classes.row} cig-cut-sm`}
     onClick={() => onClick(game)}
     aria-label={`View ${game.name}`}
   >
     <span className={classes.rowArt}>
-      <img src={rawgImage(game.background_image, 420)} alt="" loading="lazy" draggable={false} />
+      <SteamImage art={game.art} kind="capsule" loading="lazy" draggable={false} />
     </span>
     <span className={classes.rowMain}>
       <span className={classes.rowName} style={{ display: 'block' }}>
         {game.name}
       </span>
       <span className={classes.rowMeta} style={{ display: 'block' }}>
-        {game.genres.map((genre) => genre.name).join(', ') || 'Genre not listed'}
+        {game.tags.slice(0, 4).join(', ') || 'No tags yet'}
       </span>
     </span>
     <span className={classes.rowStats}>
-      {game.rating > 0 && (
-        <span className={`${classes.pill} ${classes.rating}`}>
-          <IconStarFilled size={11} aria-hidden />
-          {game.rating.toFixed(1)}
+      {game.review && (
+        <span
+          className={`${classes.pill} ${classes[reviewTone(game.review.positivePct)]}`}
+          title={game.review.label}
+        >
+          <IconThumbUpFilled size={11} aria-hidden />
+          {game.review.positivePct}%
         </span>
       )}
-      {game.metacritic != null && (
-        <span className={`${classes.pill} ${classes.mc}`}>MC {game.metacritic}</span>
+      {game.discountPct > 0 && (
+        <span className={`${classes.pill} ${classes.discount}`}>-{game.discountPct}%</span>
       )}
-      <span className={`${classes.pill} ${classes.year}`}>
-        {game.released ? new Date(game.released).getFullYear() : 'TBA'}
-      </span>
+      {game.price && <span className={`${classes.pill} ${classes.price}`}>{game.price}</span>}
+      <span className={`${classes.pill} ${classes.year}`}>{releaseShort(game)}</span>
     </span>
   </button>
 )
@@ -69,13 +72,13 @@ export function GamesGrid({
       <div className={viewMode === 'list' ? classes.list : classes.grid}>
         {Array.from({ length: SKELETON_COUNT }, (_, index) =>
           viewMode === 'list' ? (
-            <Skeleton key={index} height={112} radius={16} />
+            <Skeleton key={index} height={112} radius="lg" />
           ) : (
             <div key={index} className={classes.skeletonTile}>
-              <Skeleton radius={10} style={{ aspectRatio: '16 / 10' }} />
+              <Skeleton radius="md" style={{ aspectRatio: '16 / 10' }} />
               <Skeleton height={10} width="40%" mt={14} />
               <Skeleton height={14} width="75%" mt={10} />
-              <Skeleton height={20} width={56} radius="xl" mt={16} />
+              <Skeleton height={20} width={56} radius="sm" mt={16} />
             </div>
           )
         )}

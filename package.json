@@ -1,7 +1,7 @@
 {
   "name": "canigame",
   "version": "1.0.0",
-  "description": "Desktop app that checks whether your PC can run a game by comparing detected hardware against RAWG system requirements.",
+  "description": "Desktop app that checks whether your PC can run a game by comparing detected hardware against Steam system requirements.",
   "main": "./out/main/index.js",
   "author": "Mohd Saad Shaikh",
   "homepage": "https://github.com/mohdsaadshaikh/CanIGame",

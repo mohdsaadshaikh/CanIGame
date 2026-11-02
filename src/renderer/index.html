@@ -8,8 +8,8 @@
       Content Security Policy — https://www.electronjs.org/docs/latest/tutorial/security#7-define-a-content-security-policy
       - scripts/fonts/connections: only our own bundle (Vite dev server or file://)
       - styles: Mantine injects inline styles, so 'unsafe-inline' is required there
-      - images: our bundle, inline data URIs (placeholders) and RAWG's media CDN
-      All network requests to RAWG happen in the main process, so no connect-src for api.rawg.io.
+      - images: our bundle, inline data URIs (placeholders) and Steam's image CDN (one host)
+      All requests to the Steam store happen in the main process, so no connect-src for Steam.
     -->
     <meta
       http-equiv="Content-Security-Policy"
@@ -17,7 +17,7 @@
         default-src 'self';
         script-src 'self';
         style-src 'self' 'unsafe-inline';
-        img-src 'self' data: https://media.rawg.io;
+        img-src 'self' data: https://shared.akamai.steamstatic.com;
         font-src 'self';
         object-src 'none';
         base-uri 'self';
@@ -62,7 +62,7 @@
         width: 140px;
         height: 3px;
         overflow: hidden;
-        border-radius: 999px;
+        border-radius: 2px;
         background: #26314b;
       }
       .boot-bar::after {

@@ -1,7 +1,9 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
-  gap: 16px;
+  gap: 18px;
+  /* Room for the tiles' hover pop at the top edge. */
+  padding-top: 6px;
 }
 
 .list {
@@ -10,45 +12,67 @@
   gap: 10px;
 }
 
-/* ---------- List row ---------- */
+/* ---------- List row: a chamfered strip with the featured stripe on hover ---------- */
 
 .row {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 20px;
   width: 100%;
-  padding: 8px 18px 8px 8px;
-  border: 1px solid var(--cig-seam);
-  border-radius: var(--mantine-radius-lg);
-  background: var(--cig-plate);
+  padding: 0 20px 0 0;
+  border: 0;
+  background: var(--cig-panel);
+  box-shadow: inset 0 0 0 1px var(--cig-hairline);
   color: inherit;
   font: inherit;
   text-align: left;
   cursor: pointer;
   transition:
-    border-color 150ms ease,
-    background 150ms ease;
+    background 180ms var(--cig-ease),
+    box-shadow 180ms var(--cig-ease),
+    transform 220ms var(--cig-pop);
 }
 
-.row:hover {
-  border-color: var(--cig-accent-fill);
+.row::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  z-index: 1;
+  width: 3px;
+  background: var(--cig-accent-gradient);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 260ms var(--cig-ease);
+}
+
+.row:hover,
+.row:focus-visible {
   background: var(--cig-raised);
+  box-shadow: inset 0 0 0 1px rgba(255, 122, 69, 0.55);
+  transform: translateX(6px);
+}
+
+.row:hover::before,
+.row:focus-visible::before {
+  transform: scaleY(1);
 }
 
 .row:focus-visible {
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--cig-accent);
 }
 
 .rowArt {
-  width: 168px;
-  aspect-ratio: 16 / 9;
+  width: 184px;
+  aspect-ratio: 616 / 353;
   flex-shrink: 0;
   overflow: hidden;
-  border-radius: 10px;
   background: var(--cig-raised);
 }
 
 .rowArt img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -60,16 +84,21 @@
 }
 
 .rowName {
-  font-size: 16px;
-  font-weight: 600;
+  font-family: var(--cig-display);
+  font-size: 24px;
+  font-style: italic;
+  font-weight: 900;
+  line-height: 0.95;
+  text-transform: uppercase;
   color: var(--cig-silk);
+  padding-right: 4px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .rowMeta {
-  margin-top: 4px;
+  margin-top: 6px;
   font-size: 13px;
   color: var(--cig-silk-2);
   overflow: hidden;
@@ -80,42 +109,78 @@
 .rowStats {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   flex-shrink: 0;
 }
 
+/* Skewed tags; the plate is a ::before so the label stays upright. */
 .pill {
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   gap: 4px;
   height: 24px;
   padding: 0 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
+  font-family: var(--cig-display);
+  font-size: 15px;
+  font-style: italic;
+  font-weight: 800;
+  letter-spacing: 0.03em;
   font-variant-numeric: tabular-nums;
 }
 
-.rating {
-  background: var(--cig-accent-gradient);
+.pill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  transform: skewX(var(--cig-skew));
+  background: var(--pill-bg);
+}
+
+.discount {
+  --pill-bg: var(--cig-accent-gradient);
   color: #fff;
 }
 
-.mc {
-  background: rgba(64, 192, 87, 0.16);
+.high {
+  --pill-bg: rgba(64, 192, 87, 0.16);
   color: #69db7c;
 }
 
-.year {
-  background: var(--cig-raised);
-  color: var(--cig-silk-2);
+.mid {
+  --pill-bg: rgba(250, 176, 5, 0.16);
+  color: #ffd43b;
+}
+
+.low {
+  --pill-bg: rgba(250, 82, 82, 0.16);
+  color: #ff8787;
+}
+
+.year,
+.price {
+  --pill-bg: var(--cig-seam);
+  color: var(--cig-silk);
 }
 
 /* ---------- Skeleton tile ---------- */
 
 .skeletonTile {
   padding: 8px;
-  border: 1px solid var(--cig-seam);
-  border-radius: var(--mantine-radius-lg);
-  background: var(--cig-plate);
+  background: var(--cig-panel);
+  box-shadow: inset 0 0 0 1px var(--cig-hairline);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row,
+  .row::before {
+    transition: none;
+  }
+
+  .row:hover,
+  .row:focus-visible {
+    transform: none;
+  }
 }

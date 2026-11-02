@@ -1,9 +1,11 @@
 .title {
-  margin: 0 0 24px;
+  margin: 0 0 28px;
   font-family: var(--cig-display);
-  font-size: 40px;
-  font-weight: 800;
-  line-height: 0.95;
+  font-size: 76px;
+  font-style: italic;
+  font-weight: 900;
+  line-height: 0.86;
+  padding-right: 8px;
   text-transform: uppercase;
   color: var(--cig-silk);
 }
@@ -18,10 +20,9 @@
   display: flex;
   align-items: center;
   gap: 18px;
-  padding: 20px 24px;
-  border: 1px solid var(--cig-seam);
-  border-radius: var(--mantine-radius-lg);
-  background: var(--cig-plate);
+  padding: 22px 26px;
+  background: var(--cig-panel);
+  box-shadow: inset 0 0 0 1px var(--cig-hairline);
 }
 
 .tile {
@@ -39,8 +40,12 @@
 
 .name {
   margin: 0;
-  font-size: 16px;
-  font-weight: 600;
+  font-family: var(--cig-display);
+  font-size: 24px;
+  font-style: italic;
+  font-weight: 900;
+  line-height: 0.95;
+  text-transform: uppercase;
   color: var(--cig-silk);
 }
 

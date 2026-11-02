@@ -1,12 +1,27 @@
 /* Sidebar-foot card in the launcher "promo card" position, carrying the rig instead of an ad. */
 .rig {
   position: relative;
-  padding: 14px;
+  padding: 16px 14px 14px;
   overflow: hidden;
-  border: 1px solid var(--cig-seam);
-  border-radius: 14px;
   background:
-    linear-gradient(150deg, rgba(237, 84, 27, 0.22) 0%, transparent 60%), var(--cig-panel);
+    linear-gradient(150deg, rgba(237, 84, 27, 0.24) 0%, transparent 60%), var(--cig-panel);
+  box-shadow: inset 0 0 0 1px var(--cig-hairline);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--cig-cut)) 0,
+    100% var(--cig-cut),
+    100% 100%,
+    var(--cig-cut) 100%,
+    0 calc(100% - var(--cig-cut))
+  );
+}
+
+.rig::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: var(--cig-accent-gradient);
 }
 
 .header {
@@ -26,9 +41,10 @@
 
 .title {
   font-family: var(--cig-display);
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: 20px;
+  font-style: italic;
+  font-weight: 900;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   line-height: 1.2;
   color: var(--cig-silk);

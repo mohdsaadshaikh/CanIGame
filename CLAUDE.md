@@ -1,7 +1,7 @@
 # CanIGame
 
 Electron desktop app that detects the user's PC hardware and compares it with a game's system
-requirements from the RAWG API. Stack: Electron 35 · electron-vite · React 19 · TypeScript ·
+requirements from the Steam store. Stack: Electron 35 · electron-vite · React 19 · TypeScript ·
 Mantine 8 · react-router (hash) · axios · systeminformation.
 
 ## Commands
@@ -14,16 +14,16 @@ npm run build        # typecheck + bundle to out/
 npm run build:win    # build + NSIS installer in dist/ (mac/linux variants exist)
 ```
 
-Setup once: `cp .env.example .env` and add a RAWG key (`MAIN_VITE_RAWG_API_KEY`). Without it, main
-logs a warning on startup and every RAWG call fails with "API key is missing or invalid".
+No setup or API key needed: game data comes from Steam's public store endpoints. RAWG was dropped
+(its free plan is non-commercial only and the app is meant to go commercial); do not reintroduce it.
 
 ## Architecture — three processes, one contract
 
 ```
-src/main/      Node. Owns the API key, all network calls (RAWG) and OS access (systeminformation).
+src/main/      Node. Owns all network calls (Steam) and OS access (systeminformation).
 src/preload/   Sandboxed bridge. Implements `Api` and exposes it as `window.api`. Nothing else.
 src/renderer/  React SPA. No Node, no `electron` import, no direct network. Talks only to `window.api`.
-src/shared/    Code compiled into all three: the IPC contract (`ipc.ts`) and RAWG/hardware types.
+src/shared/    Code compiled into all three: the IPC contract (`ipc.ts`) and game/hardware types.
 ```
 
 `src/shared/ipc.ts` is the single source of truth for IPC. **To add an IPC method, touch exactly
@@ -33,7 +33,7 @@ four places:**
 2. `Api` interface — add the typed method.
 3. `src/preload/index.ts` — implement it on the `api` object (TS fails if 2 and 3 disagree).
 4. `src/main/ipc.ts` — `ipcMain.handle(...)` that calls `assertTrustedSender(event)` first and
-   validates every argument (see `isValidGameSlug`) before doing any work.
+   validates every argument (see `isValidGameId`, `isValidGamesQuery`) before doing any work.
 
 Path aliases: `@shared/*` → `src/shared/*` (all processes), `@renderer/*` → `src/renderer/src/*`.
 Use them; do not write `../../..` chains or `src/...` imports.
@@ -48,8 +48,10 @@ If a change seems to need one relaxed, stop and ask.
   a generic `invoke(channel, ...args)`.
 - Every `ipcMain.handle` validates the sender (`assertTrustedSender`) and its arguments. The
   renderer is treated as untrusted input.
-- The CSP lives in `src/renderer/index.html`. `img-src` is limited to `media.rawg.io` + `data:`;
-  there is deliberately no `connect-src` for RAWG because the renderer must not call it.
+- The CSP lives in `src/renderer/index.html`. `img-src` is limited to Steam's image CDN
+  (`shared.akamai.steamstatic.com`, `STEAM_IMAGE_ORIGIN`) + `data:`. Main only hands the renderer
+  image URLs on that host (`onImageCdn`, `toGameArt`). There is deliberately no `connect-src` for
+  Steam because the renderer must not call it.
   `script-src 'self'` is strict in production; the `devOnlyCsp` plugin in `electron.vite.config.ts`
   adds `'unsafe-inline'` for the dev server only (Vite/React-refresh inject inline scripts). Never
   add `'unsafe-inline'` to `script-src` in `index.html` itself.
@@ -70,12 +72,19 @@ If a change seems to need one relaxed, stop and ask.
 - Errors crossing IPC keep only `message`. Main throws `Error` with a short, user-readable message
   (see `toApiError` in `src/main/services/apis.ts`); the renderer displays it via
   `getErrorMessage()` from `src/renderer/src/utils/errors.ts`, which strips Electron's prefix.
-- RAWG types are in `src/shared/types/games.ts` and were verified against live responses. The
-  **list** endpoint returns `platforms[].requirements_en`; the **detail** endpoint returns
-  `platforms[].requirements` and extra fields (`description_raw`, `developers`, …). Check a real
-  response (`curl "https://api.rawg.io/api/games/<slug>?key=…"`) before changing these types.
-- Null-guard RAWG numbers explicitly (`metacritic != null`, `playtime > 0`); `{0 && <X/>}` renders a
-  literal `0`.
+- Game data is Steam's, normalised in main so the renderer never sees Steam's raw shapes:
+  - `src/main/services/apis.ts` calls the keyless store endpoints: `/search/results/?infinite=1`
+    (lists, search, tags; returns HTML rows), `/api/appdetails`,
+    `/tagdata/populartags/english`, and `api.steampowered.com/IStoreBrowseService/GetItems` for art and review summaries
+    (`/appreviews` started redirecting to the store homepage in Nov 2026; do not use it).
+  - `src/main/services/steamParse.ts` holds the pure converters (HTML rows, requirement blocks,
+    dates, art paths). They were checked against live responses; re-check one before changing them.
+  - Newer apps keep art in hashed folders, so never build image URLs from the app id in the
+    renderer; use `game.art` with `<SteamImage kind=… />`, which falls back through what exists.
+  - Steam rate-limits per IP (about 200 requests / 5 min). Everything goes through `cached()` in
+    `src/main/lib/cache.ts`; bump its `SCHEMA_VERSION` whenever a cached type's shape changes.
+- Null-guard optional numbers explicitly (`metacritic != null`, `discountPct > 0`); `{0 && <X/>}`
+  renders a literal `0`.
 - Commit messages: short imperative sentence, matching existing history. Do not commit unless asked.
 
 ## Definition of done
@@ -86,9 +95,16 @@ If a change seems to need one relaxed, stop and ask.
 
 ## Roadmap context
 
-The app's core feature — "can my PC run this?" — is not built yet. The seed is
-`src/renderer/src/utils/requirements.ts`, which splits RAWG's run-on requirement strings into
-labelled lines. The next step is a structured parser + comparison against `HardwareInfo`; keep that
-logic framework-free (plain TS, unit-testable) so it can live in `src/shared/` and be used from
-either process. Wishlist persistence and search are also unimplemented (Wishlist screen is an
-empty state; Header search only navigates between pages).
+The app's core feature — "can my PC run this?" — is not built yet. Its input is ready:
+`GameDetails.requirements` holds Steam's minimum/recommended blocks as labelled lines
+(`{ label: 'Processor', value: 'Intel Core i5-8400 or AMD Ryzen 3 3300X' }`). The next step is a
+parser for those values (CPU/GPU models, GB of RAM/VRAM/storage) + comparison against
+`HardwareInfo`; keep that logic framework-free (plain TS, unit-testable) so it can live in
+`src/shared/` and be used from either process. Wishlist persistence is unimplemented (Wishlist
+screen is an empty state). Search is built: live Steam search on Explore and in the Ctrl+K palette
+(`GameSearch`).
+
+Future scope (not started): a hardware sync system. The desktop app is the only thing that can read
+real hardware, so it would sync the detected `HardwareInfo` to a user account for web/mobile clients.
+Keep `HardwareInfo` serialisable and the comparison logic in `src/shared/` so a sync layer can reuse
+both. Steam's Web API cannot supply hardware; it only covers profiles, libraries and achievements.

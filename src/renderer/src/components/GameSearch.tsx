@@ -1,14 +1,15 @@
 import { Loader, Text } from '@mantine/core'
-import { rawgImage } from '@renderer/utils/images'
 import { useDebouncedValue } from '@mantine/hooks'
 import { Spotlight } from '@mantine/spotlight'
 import { links } from '@renderer/constants'
 import { getErrorMessage } from '@renderer/utils/errors'
+import { releaseShort } from '@renderer/utils/games'
 import type { Game } from '@shared/types/games'
 import { IconSearch } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import classes from './GameSearch.module.css'
+import { SteamImage } from './SteamImage'
 
 /*
  * Request budget: search only after 3+ characters and 600ms of no typing, on a normalised
@@ -30,7 +31,7 @@ interface SearchState {
 
 const IDLE: SearchState = { results: [], loading: false, error: null }
 
-/** Command palette (Ctrl/⌘+K): live RAWG game search plus quick page navigation. */
+/** Command palette (Ctrl/⌘+K): live Steam game search plus quick page navigation. */
 export function GameSearch(): React.JSX.Element {
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
@@ -52,9 +53,9 @@ export function GameSearch(): React.JSX.Element {
     let cancelled = false
     setState((previous) => ({ ...previous, loading: true, error: null }))
     window.api
-      .getGames({ search: debouncedQuery, pageSize: MAX_RESULTS })
+      .getGames({ search: debouncedQuery })
       .then((data) => {
-        const results = data.results ?? []
+        const results = data.games.slice(0, MAX_RESULTS)
         sessionResults.set(debouncedQuery, results)
         if (!cancelled) setState({ results, loading: false, error: null })
       })
@@ -111,27 +112,21 @@ export function GameSearch(): React.JSX.Element {
         {searching && state.results.length > 0 && (
           <Spotlight.ActionsGroup label="Games">
             {state.results.map((game) => (
-              <Spotlight.Action key={game.id} onClick={() => go(`/game/${game.slug}`)}>
+              <Spotlight.Action key={game.id} onClick={() => go(`/game/${game.id}`)}>
                 <div className={classes.result}>
-                  <img
-                    src={rawgImage(game.background_image, 420)}
-                    alt=""
+                  <SteamImage
+                    art={game.art}
+                    kind="header"
                     className={classes.thumb}
                     loading="lazy"
                   />
                   <div className={classes.text}>
-                    <Text fw={600} lineClamp={1}>
+                    <Text className={classes.resultName} lineClamp={1}>
                       {game.name}
                     </Text>
                     <Text size="xs" c="dimmed" lineClamp={1}>
-                      <span className={classes.meta}>
-                        {game.released ? new Date(game.released).getFullYear() : 'TBA'}
-                      </span>
-                      {game.genres.length > 0 &&
-                        `   ${game.genres
-                          .slice(0, 2)
-                          .map((genre) => genre.name)
-                          .join(', ')}`}
+                      <span className={classes.meta}>{releaseShort(game)}</span>
+                      {game.tags.length > 0 && `   ${game.tags.slice(0, 2).join(', ')}`}
                     </Text>
                   </div>
                 </div>
@@ -151,7 +146,7 @@ export function GameSearch(): React.JSX.Element {
                       <Icon size={20} />
                     </span>
                     <div className={classes.text}>
-                      <Text fw={600}>{link.label}</Text>
+                      <Text className={classes.resultName}>{link.label}</Text>
                       <Text size="xs" c="dimmed">
                         {link.description}
                       </Text>

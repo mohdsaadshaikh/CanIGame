@@ -1,97 +1,127 @@
-import { rawgImage } from '@renderer/utils/images'
 import {
   Alert,
   Anchor,
-  Badge,
-  Box,
   Button,
-  Card,
   Container,
   Grid,
   Group,
   Image,
+  Modal,
   Skeleton,
   Spoiler,
-  Stack,
-  Table,
-  Text,
-  Title
+  Stack
 } from '@mantine/core'
+import { SteamImage } from '@renderer/components/SteamImage'
 import { useRecentGames } from '@renderer/hooks/useRecentGames'
 import { getErrorMessage } from '@renderer/utils/errors'
-import { getUniquePlatformTypes, mapPlatformIcons } from '@renderer/utils/platform-utils'
-import { parseRequirements, type RequirementLine } from '@renderer/utils/requirements'
-import type { GameDetails as GameDetailsData } from '@shared/types/games'
+import { compactNumber, isLegendary, releaseLine, reviewTone } from '@renderer/utils/games'
+import { isValidGameId } from '@shared/ipc'
+import { steamStoreUrl } from '@shared/steam'
+import type {
+  GameDetails as GameDetailsData,
+  RequirementLine,
+  Screenshot
+} from '@shared/types/games'
 import {
   IconAlertTriangle,
   IconArrowLeft,
-  IconCalendar,
+  IconBrandSteam,
   IconExternalLink,
   IconRefresh,
-  IconStar
+  IconThumbUpFilled
 } from '@tabler/icons-react'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import classes from './GameDetails.module.css'
 
-function metacriticColor(score: number): string {
-  if (score >= 80) return 'green'
-  if (score >= 60) return 'yellow'
-  return 'red'
-}
-
-function formatDate(iso: string | null): string {
-  if (!iso) return 'TBA'
-  return new Date(iso).toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
-
-const RequirementsTable = ({
+/** One requirements tier as a HUD spec sheet: mono label column, plain values. */
+const RequirementsTier = ({
   title,
-  lines
+  lines,
+  highlight
 }: {
   title: string
   lines: RequirementLine[]
+  highlight?: boolean
 }): React.JSX.Element => (
-  <Box>
-    <Text fw={600} mb="xs">
+  <div>
+    <span className={`${classes.chip} ${highlight ? classes.accent : ''} ${classes.tierName}`}>
       {title}
-    </Text>
+    </span>
     {lines.length === 0 ? (
-      <Text size="sm" c="dimmed">
-        Not provided.
-      </Text>
+      <div className={classes.empty}>Not provided.</div>
     ) : (
-      <Table variant="vertical" layout="fixed" withTableBorder>
-        <Table.Tbody>
-          {lines.map((line) => (
-            <Table.Tr key={line.label}>
-              <Table.Th w={140}>{line.label}</Table.Th>
-              <Table.Td>{line.value}</Table.Td>
-            </Table.Tr>
-          ))}
-        </Table.Tbody>
-      </Table>
+      <dl className={classes.specs}>
+        {lines.map((line, index) =>
+          line.label ? (
+            <div key={`${line.label}-${index}`} className={classes.spec}>
+              <dt>{line.label}</dt>
+              <dd>{line.value}</dd>
+            </div>
+          ) : (
+            <div key={`note-${index}`} className={classes.note}>
+              {line.value}
+            </div>
+          )
+        )}
+      </dl>
     )}
-  </Box>
+  </div>
 )
 
+const Screenshots = ({ shots }: { shots: Screenshot[] }): React.JSX.Element => {
+  const [open, setOpen] = useState<Screenshot | null>(null)
+  return (
+    <>
+      <div className={classes.shots}>
+        {shots.map((shot) => (
+          <button
+            key={shot.full}
+            type="button"
+            className={`${classes.shot} cig-cut-sm`}
+            onClick={() => setOpen(shot)}
+            aria-label="Open screenshot"
+          >
+            <img src={shot.thumb} alt="" loading="lazy" draggable={false} />
+          </button>
+        ))}
+      </div>
+      <Modal
+        opened={open !== null}
+        onClose={() => setOpen(null)}
+        size="80rem"
+        centered
+        withCloseButton={false}
+        padding={0}
+      >
+        {open && <Image src={open.full} alt="" />}
+      </Modal>
+    </>
+  )
+}
+
 /** Session cache: revisiting a game renders instantly (main also caches on disk). */
-const detailsCache = new Map<string, GameDetailsData>()
+const detailsCache = new Map<number, GameDetailsData>()
 
 const GameDetails = (): React.JSX.Element => {
-  const { slug } = useParams<{ slug: string }>()
+  const params = useParams<{ id: string }>()
+  const parsedId = Number(params.id)
+  const appId = isValidGameId(parsedId) ? parsedId : null
   const navigate = useNavigate()
-  const cachedGame = slug ? detailsCache.get(slug) : undefined
+  const cachedGame = appId !== null ? detailsCache.get(appId) : undefined
   const [game, setGame] = useState<GameDetailsData | null>(cachedGame ?? null)
-  const [loading, setLoading] = useState(!cachedGame)
-  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(!cachedGame && appId !== null)
+  const [error, setError] = useState<string | null>(appId === null ? 'Game not found.' : null)
 
+  // The route reuses this component across ids, so every path sets all three states.
   const fetchGame = useCallback(async () => {
-    if (!slug) return
-    const hit = detailsCache.get(slug)
+    if (appId === null) {
+      setGame(null)
+      setLoading(false)
+      setError('Game not found.')
+      return
+    }
+    const hit = detailsCache.get(appId)
     if (hit) {
       setGame(hit)
       setLoading(false)
@@ -101,8 +131,8 @@ const GameDetails = (): React.JSX.Element => {
     setLoading(true)
     setError(null)
     try {
-      const data = await window.api.getGameBySlug(slug)
-      detailsCache.set(slug, data)
+      const data = await window.api.getGame(appId)
+      detailsCache.set(appId, data)
       setGame(data)
     } catch (err) {
       setGame(null)
@@ -110,7 +140,7 @@ const GameDetails = (): React.JSX.Element => {
     } finally {
       setLoading(false)
     }
-  }, [slug])
+  }, [appId])
 
   useEffect(() => {
     void fetchGame()
@@ -138,9 +168,9 @@ const GameDetails = (): React.JSX.Element => {
       <Container size="xl" py="md">
         <Stack gap="md">
           {backButton}
-          <Skeleton height={320} radius="md" />
+          <Skeleton height={380} />
           <Skeleton height={28} width="40%" />
-          <Skeleton height={120} radius="md" />
+          <Skeleton height={160} />
         </Stack>
       </Container>
     )
@@ -154,15 +184,17 @@ const GameDetails = (): React.JSX.Element => {
           <Alert icon={<IconAlertTriangle size={24} />} title="Could not load game" color="red">
             <Group justify="space-between" align="center">
               {error ?? 'Game not found.'}
-              <Button
-                variant="light"
-                color="red"
-                size="sm"
-                leftSection={<IconRefresh size={16} />}
-                onClick={() => void fetchGame()}
-              >
-                Retry
-              </Button>
+              {appId !== null && (
+                <Button
+                  variant="light"
+                  color="red"
+                  size="sm"
+                  leftSection={<IconRefresh size={16} />}
+                  onClick={() => void fetchGame()}
+                >
+                  Retry
+                </Button>
+              )}
             </Group>
           </Alert>
         </Stack>
@@ -170,177 +202,155 @@ const GameDetails = (): React.JSX.Element => {
     )
   }
 
-  const platforms = mapPlatformIcons(getUniquePlatformTypes(game.platforms))
-  const pcRequirements = game.platforms.find((p) => p.platform.slug === 'pc')?.requirements
-  const minimum = parseRequirements(pcRequirements?.minimum)
-  const recommended = parseRequirements(pcRequirements?.recommended)
-  const hasRequirements = minimum.length > 0 || recommended.length > 0
+  const { review, requirements } = game
+  const hasRequirements = requirements.minimum.length > 0 || requirements.recommended.length > 0
+  const platforms = [
+    game.platforms.windows && 'Windows',
+    game.platforms.mac && 'macOS',
+    game.platforms.linux && 'Linux'
+  ].filter(Boolean)
 
   return (
     <Container size="xl" py="md">
       <Stack gap="lg">
         {backButton}
 
-        <Card padding={0} radius="md" style={{ overflow: 'hidden' }}>
-          <Box pos="relative">
-            <Image src={rawgImage(game.background_image, 'full')} alt="" h={320} fit="cover" />
-            <Box
-              pos="absolute"
-              inset={0}
-              style={{
-                background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0) 60%)'
-              }}
-            />
-            <Stack gap="xs" pos="absolute" bottom={0} left={0} right={0} p="lg">
-              <Title order={1} c="white" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.6)' }}>
-                {game.name}
-              </Title>
-              <Group gap="md">
-                <Group gap={4}>
-                  <IconCalendar size={16} color="white" />
-                  <Text size="sm" c="white">
-                    {formatDate(game.released)}
-                  </Text>
-                </Group>
-                <Group gap={4}>
-                  <IconStar size={16} fill="#ffd43b" color="#ffd43b" />
-                  <Text size="sm" c="white" fw={500}>
-                    {game.rating > 0 ? game.rating.toFixed(1) : 'N/A'}
-                  </Text>
-                  {game.ratings_count > 0 && (
-                    <Text size="xs" c="gray.4">
-                      ({game.ratings_count.toLocaleString()} ratings)
-                    </Text>
-                  )}
-                </Group>
-                {game.metacritic != null && (
-                  <Badge color={metacriticColor(game.metacritic)} variant="filled">
-                    Metacritic {game.metacritic}
-                  </Badge>
-                )}
-                <Group gap="xs" c="white">
-                  {platforms.map((platform) => (
-                    <Box key={platform.name} style={{ display: 'flex' }}>
-                      {platform.icon}
-                    </Box>
-                  ))}
-                </Group>
-              </Group>
-            </Stack>
-          </Box>
-        </Card>
+        <section className={`${classes.hero} cig-cut`} aria-label={game.name}>
+          <SteamImage art={game.art} kind="hero" className={classes.heroArt} />
+          <div className={classes.heroShade} aria-hidden="true" />
+          <div className={classes.heroCopy}>
+            <h1 className={classes.title}>{game.name}</h1>
+            <div className={classes.chips}>
+              {isLegendary(game) && (
+                <span className={`${classes.chip} ${classes.accent}`}>Legendary</span>
+              )}
+              <span className={classes.chip}>{releaseLine(game)}</span>
+              {review && (
+                <span
+                  className={`${classes.chip} ${classes[reviewTone(review.positivePct)]}`}
+                  title={review.label}
+                >
+                  <IconThumbUpFilled size={14} aria-hidden />
+                  {review.positivePct}% {review.label}
+                  <span className={classes.chipMeta}>
+                    {compactNumber.format(review.total)} reviews
+                  </span>
+                </span>
+              )}
+              {game.metacritic != null && (
+                <span className={classes.chip}>Metacritic {game.metacritic}</span>
+              )}
+            </div>
+          </div>
+        </section>
 
         <Grid gutter="lg">
           <Grid.Col span={{ base: 12, md: 8 }}>
             <Stack gap="lg">
-              <Card>
-                <Title order={3} mb="sm">
-                  About
-                </Title>
-                <Spoiler maxHeight={160} showLabel="Read more" hideLabel="Show less">
-                  <Text style={{ whiteSpace: 'pre-line' }}>
-                    {game.description_raw || 'No description available.'}
-                  </Text>
-                </Spoiler>
-              </Card>
-
-              <Card>
-                <Title order={3} mb="sm">
-                  PC System Requirements
-                </Title>
+              <section className={`${classes.panel} cig-cut`}>
+                <h2 className={classes.panelTitle}>PC requirements</h2>
                 {hasRequirements ? (
-                  <Grid gutter="lg">
-                    <Grid.Col span={{ base: 12, lg: 6 }}>
-                      <RequirementsTable title="Minimum" lines={minimum} />
-                    </Grid.Col>
-                    <Grid.Col span={{ base: 12, lg: 6 }}>
-                      <RequirementsTable title="Recommended" lines={recommended} />
-                    </Grid.Col>
-                  </Grid>
+                  <div className={classes.tiers}>
+                    <RequirementsTier title="Minimum" lines={requirements.minimum} />
+                    <RequirementsTier
+                      title="Recommended"
+                      lines={requirements.recommended}
+                      highlight
+                    />
+                  </div>
                 ) : (
-                  <Text c="dimmed">RAWG has no PC requirements listed for this game.</Text>
+                  <div className={classes.empty}>
+                    Steam has no PC requirements listed for this game.
+                  </div>
                 )}
-              </Card>
+              </section>
+
+              <section className={`${classes.panel} cig-cut`}>
+                <h2 className={classes.panelTitle}>About</h2>
+                <Spoiler maxHeight={168} showLabel="Read more" hideLabel="Show less">
+                  <div className={classes.about}>{game.about || 'No description available.'}</div>
+                </Spoiler>
+              </section>
+
+              {game.screenshots.length > 0 && (
+                <section className={`${classes.panel} cig-cut`}>
+                  <h2 className={classes.panelTitle}>Screenshots</h2>
+                  <Screenshots shots={game.screenshots} />
+                </section>
+              )}
             </Stack>
           </Grid.Col>
 
           <Grid.Col span={{ base: 12, md: 4 }}>
-            <Card>
-              <Stack gap="md">
-                <Box>
-                  <Text size="sm" c="dimmed">
-                    Genres
-                  </Text>
-                  <Group gap="xs" mt={4}>
-                    {game.genres.length === 0 ? (
-                      <Text size="sm">Not listed</Text>
-                    ) : (
-                      game.genres.map((genre) => (
-                        <Badge key={genre.id} variant="light">
-                          {genre.name}
-                        </Badge>
-                      ))
-                    )}
-                  </Group>
-                </Box>
-                <Box>
-                  <Text size="sm" c="dimmed">
-                    Developers
-                  </Text>
-                  <Text size="sm">
-                    {game.developers.map((d) => d.name).join(', ') || 'Not listed'}
-                  </Text>
-                </Box>
-                <Box>
-                  <Text size="sm" c="dimmed">
-                    Publishers
-                  </Text>
-                  <Text size="sm">
-                    {game.publishers.map((p) => p.name).join(', ') || 'Not listed'}
-                  </Text>
-                </Box>
-                <Box>
-                  <Text size="sm" c="dimmed">
-                    Platforms
-                  </Text>
-                  <Text size="sm">
-                    {game.platforms.map((p) => p.platform.name).join(', ') || 'Not listed'}
-                  </Text>
-                </Box>
-                <Box>
-                  <Text size="sm" c="dimmed">
-                    Available on
-                  </Text>
-                  <Group gap="xs" mt={4}>
-                    {game.stores.length === 0 ? (
-                      <Text size="sm">Not listed</Text>
-                    ) : (
-                      game.stores.map(({ id, store }) => (
-                        <Badge key={id} variant="outline" color="gray">
-                          {store.name}
-                        </Badge>
-                      ))
-                    )}
-                  </Group>
-                </Box>
-                {game.esrb_rating && (
-                  <Box>
-                    <Text size="sm" c="dimmed">
-                      Age rating
-                    </Text>
-                    <Text size="sm">{game.esrb_rating.name}</Text>
-                  </Box>
+            <section className={`${classes.panel} cig-cut`} aria-label="Game facts">
+              <div className={classes.facts}>
+                {game.price && (
+                  <div>
+                    <div className={classes.factLabel}>
+                      {game.comingSoon ? 'Pre-order' : 'Price'}
+                    </div>
+                    <div className={classes.price}>
+                      {game.price}
+                      {game.discountPct > 0 && (
+                        <span className={`${classes.chip} ${classes.accent}`}>
+                          -{game.discountPct}%
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 )}
-                {game.website && (
-                  // Opens in the OS browser: main's setWindowOpenHandler intercepts target="_blank".
-                  <Anchor href={game.website} target="_blank" rel="noopener noreferrer" size="sm">
-                    <Group gap={4}>
-                      Official website <IconExternalLink size={14} />
+                <div>
+                  <div className={classes.factLabel}>Genres</div>
+                  {game.genres.length === 0 ? (
+                    <div className={classes.factValue}>Not listed</div>
+                  ) : (
+                    <div className={classes.tags}>
+                      {game.genres.map((genre) => (
+                        <span key={genre} className={classes.chip}>
+                          {genre}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <div className={classes.factLabel}>Developers</div>
+                  <div className={classes.factValue}>
+                    {game.developers.join(', ') || 'Not listed'}
+                  </div>
+                </div>
+                <div>
+                  <div className={classes.factLabel}>Publishers</div>
+                  <div className={classes.factValue}>
+                    {game.publishers.join(', ') || 'Not listed'}
+                  </div>
+                </div>
+                <div>
+                  <div className={classes.factLabel}>Platforms</div>
+                  <div className={classes.factValue}>{platforms.join(', ') || 'Not listed'}</div>
+                </div>
+                {/* Links open in the OS browser: main's setWindowOpenHandler intercepts target="_blank". */}
+                <div className={classes.links}>
+                  <Anchor
+                    href={steamStoreUrl(game.id)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    size="sm"
+                  >
+                    <Group gap={6}>
+                      <IconBrandSteam size={16} /> View on Steam
                     </Group>
                   </Anchor>
-                )}
-              </Stack>
-            </Card>
+                  {game.website && (
+                    <Anchor href={game.website} target="_blank" rel="noopener noreferrer" size="sm">
+                      <Group gap={6}>
+                        Official website <IconExternalLink size={14} />
+                      </Group>
+                    </Anchor>
+                  )}
+                </div>
+              </div>
+            </section>
           </Grid.Col>
         </Grid>
       </Stack>

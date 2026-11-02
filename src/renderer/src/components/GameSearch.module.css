@@ -1,8 +1,19 @@
+/* Square panel with the featured stripe on top (DESIGN.md); a modal may cast a shadow. */
 .content {
-  border: 1px solid var(--cig-seam-strong);
-  border-radius: var(--mantine-radius-lg);
+  position: relative;
+  border: 1px solid var(--cig-hairline-strong);
+  border-radius: 0;
   background: var(--cig-panel);
-  box-shadow: var(--mantine-shadow-lg);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8);
+}
+
+.content::before {
+  content: '';
+  position: absolute;
+  inset: -1px -1px auto;
+  z-index: 1;
+  height: 3px;
+  background: var(--cig-accent-gradient);
 }
 
 .search {
@@ -11,19 +22,21 @@
 
 /* Mantine renders the group label through `::before` with `content: attr(data-label)`. */
 .group::before {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--cig-silk-3);
 }
 
 .action {
-  border-radius: 10px;
+  border-radius: 0;
 }
 
 .action[data-selected] {
   background: var(--cig-raised);
+  box-shadow: inset 0 0 0 1px rgba(255, 122, 69, 0.55);
 }
 
 .result {
@@ -39,8 +52,8 @@
   height: 40px;
   flex-shrink: 0;
   object-fit: cover;
-  border-radius: 8px;
   background: var(--cig-raised);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
 }
 
 .pageIcon {
@@ -49,8 +62,6 @@
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  border: 1px solid var(--cig-seam);
-  border-radius: 8px;
   color: var(--cig-silk-2);
 }
 
@@ -74,4 +85,15 @@
   text-align: center;
   font-size: 14px;
   color: var(--cig-silk-2);
+}
+
+.resultName {
+  font-family: var(--cig-display);
+  font-size: 19px;
+  font-style: italic;
+  font-weight: 800;
+  line-height: 1.05;
+  text-transform: uppercase;
+  color: var(--cig-silk);
+  padding-right: 3px;
 }

@@ -13,7 +13,7 @@ interface SettingProps {
 }
 
 const Setting = ({ icon, title, description, children }: SettingProps): React.JSX.Element => (
-  <section className={classes.setting}>
+  <section className={`${classes.setting} cig-cut`}>
     <span className={classes.tile} aria-hidden="true">
       {icon}
     </span>

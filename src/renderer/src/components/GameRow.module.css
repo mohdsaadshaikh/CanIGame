@@ -8,9 +8,9 @@
   scroll-snap-type: x mandatory;
   scroll-behavior: smooth;
   scrollbar-width: none;
-  /* Room for the tile's 2px lift and focus ring so the overflow doesn't clip them. */
-  padding: 4px 4px 8px;
-  margin: -4px -4px -8px;
+  /* Room for the tile's 6px hover pop so the overflow doesn't clip it. */
+  padding: 12px 6px 8px;
+  margin: -12px -6px -8px;
 }
 
 .scroller::-webkit-scrollbar {

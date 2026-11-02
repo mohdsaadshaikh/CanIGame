@@ -18,7 +18,7 @@ when planning an upgrade.
 ## Product Purpose
 
 CanIGame detects the user's real PC hardware and compares it with each game's system requirements
-from the RAWG database, so the user gets a clear answer before buying or upgrading. Success: for any
+from the Steam store, so the user gets a clear answer before buying or upgrading. Success: for any
 game, the user can tell at a glance whether their rig runs it, and which component holds it back
 when it doesn't.
 
@@ -33,8 +33,11 @@ when it doesn't.
 ## Operating Context
 
 - Desktop app with a frameless window and custom title bar; the window can be resized down to 800×600.
-- Game data (catalogue, artwork, descriptions, PC requirements) comes from the RAWG API through the
-  main process. RAWG stores PC requirements as free text (minimum / recommended).
+- Game data (catalogue, artwork, descriptions, reviews, prices, PC requirements) comes from Steam's
+  public store endpoints through the main process. Steam lists PC requirements as labelled lines
+  (OS, Processor, Memory, Graphics, Storage) in minimum / recommended blocks. Only games sold on
+  Steam are covered.
+- The product is intended to go commercial, so data sources must allow commercial use.
 - Hardware scans are cached locally and refreshed on demand from the About PC screen.
 
 ## Capabilities and Constraints
@@ -46,7 +49,7 @@ when it doesn't.
   bottleneck identification, wishlist persistence, filters. The UI must not display a verdict it
   cannot compute.
 - Technical: Electron security invariants (sandboxed renderer, strict CSP, images only from
-  `media.rawg.io`) are binding; see CLAUDE.md.
+  Steam's image CDN) are binding; see CLAUDE.md.
 - Open decision: how verdicts are scored (benchmark source for CPU/GPU comparison).
 
 ## Brand Commitments
@@ -57,7 +60,8 @@ when it doesn't.
 
 ## Evidence on Hand
 
-- Live RAWG data: game artwork, genres, ratings, Metacritic scores, release dates, PC requirements.
+- Live Steam data: game artwork, user tags, review scores, prices and discounts, Metacritic scores,
+  release dates, PC requirements.
 - The user's own detected hardware.
 - No testimonials, user counts, benchmarks or press exist. Do not fabricate any.
 
@@ -68,4 +72,4 @@ when it doesn't.
 2. **Speak to people who know hardware.** Show real model names and numbers; don't dumb specs down
    into vague tiers.
 3. **Trust the machine, not the user's memory.** Prefer detected facts over manual input.
-4. **Honest about gaps.** When RAWG lacks requirements or a comparison can't be made, say so plainly.
+4. **Honest about gaps.** When Steam lacks requirements or a comparison can't be made, say so plainly.

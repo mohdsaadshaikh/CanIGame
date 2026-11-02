@@ -66,11 +66,148 @@ kbd,
   background: transparent;
 }
 
-/* Lift for gradient primary buttons: a lit top edge and a soft ember shadow. */
+/* ---------------------------------------------------------------------------
+ * Overclock (DESIGN.md): global shape and type rules for Mantine primitives.
+ * ------------------------------------------------------------------------- */
+
+/* Display titles: loud italic condensed caps. */
+.mantine-Title-root {
+  font-style: italic;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+/*
+ * Buttons are parallelograms; the label is counter-skewed so it stays upright. The skew is on
+ * the root, so the focus outline follows the same shape.
+ */
+.mantine-Button-root {
+  transform: skewX(var(--cig-skew));
+  font-family: var(--cig-display);
+  font-style: italic;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition:
+    transform 220ms var(--cig-pop),
+    background 180ms var(--cig-ease),
+    color 180ms var(--cig-ease),
+    border-color 180ms var(--cig-ease);
+}
+
+.mantine-Button-root > .mantine-Button-inner {
+  transform: skewX(calc(var(--cig-skew) * -1));
+}
+
+.mantine-Button-root[data-size='md'],
+.mantine-Button-root[data-size='lg'] {
+  font-size: 17px;
+}
+
+.mantine-Button-root:not(:disabled):not([data-disabled]):hover {
+  transform: skewX(var(--cig-skew)) translateY(-2px);
+}
+
+.mantine-Button-root:not(:disabled):not([data-disabled]):active {
+  transform: skewX(var(--cig-skew)) translateY(0) scale(0.98);
+}
+
+/*
+ * Gradient primaries are chunky Fortnite-style keys: a lit top edge and a solid ember "base"
+ * under the face (a hard offset, never a blur). Pressing pushes the face down onto the base.
+ */
 .mantine-Button-root[data-variant='filled']:not(:disabled):not([data-disabled]) {
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.22),
-    0 10px 22px -12px rgba(210, 66, 26, 0.9);
+    inset 0 2px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -3px 0 rgba(90, 22, 4, 0.45),
+    0 4px 0 #7a2408;
+}
+
+.mantine-Button-root[data-variant='filled']:not(:disabled):not([data-disabled]):hover {
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.36),
+    inset 0 -3px 0 rgba(90, 22, 4, 0.45),
+    0 6px 0 #7a2408;
+}
+
+.mantine-Button-root[data-variant='filled']:not(:disabled):not([data-disabled]):active {
+  transform: skewX(var(--cig-skew)) translateY(3px);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.2),
+    0 1px 0 #7a2408;
+}
+
+.mantine-Button-root[data-variant='default'] {
+  background: transparent;
+  border-color: var(--cig-hairline-strong);
+}
+
+.mantine-Button-root[data-variant='default']:hover {
+  background: var(--cig-accent-wash);
+  border-color: var(--cig-accent);
+}
+
+/* Chips: small skewed tags in the display face. */
+.mantine-Badge-root {
+  transform: skewX(var(--cig-skew));
+  font-family: var(--cig-display);
+  font-style: italic;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.mantine-Badge-root > .mantine-Badge-label {
+  transform: skewX(calc(var(--cig-skew) * -1));
+}
+
+/* Surfaces: square, hairline, no rounding. */
+.mantine-Card-root,
+.mantine-Paper-root {
+  border-color: var(--cig-hairline);
+}
+
+/*
+ * Chamfer cuts: top-right and bottom-left corners. `clip-path` also clips outlines, so a
+ * clipped element that takes focus draws its ring with an inset shadow instead.
+ */
+.cig-cut {
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--cig-cut)) 0,
+    100% var(--cig-cut),
+    100% 100%,
+    var(--cig-cut) 100%,
+    0 calc(100% - var(--cig-cut))
+  );
+}
+
+.cig-cut-sm {
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--cig-cut-sm)) 0,
+    100% var(--cig-cut-sm),
+    100% 100%,
+    var(--cig-cut-sm) 100%,
+    0 calc(100% - var(--cig-cut-sm))
+  );
+}
+
+/* Small tracked mono caps: labels, meta lines, designators. */
+.cig-label {
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mantine-Button-root,
+  .mantine-Button-root:hover,
+  .mantine-Button-root:active {
+    transition: none;
+    transform: skewX(var(--cig-skew));
+  }
 }
 
 /*

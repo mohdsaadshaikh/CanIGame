@@ -1,11 +1,12 @@
 import { useLocalStorage } from '@mantine/hooks'
-import type { GameDetails } from '@shared/types/games'
+import type { GameArt, GameDetails } from '@shared/types/games'
 import { useCallback } from 'react'
 
 export interface RecentGame {
-  slug: string
+  /** Steam app id. */
+  id: number
   name: string
-  image: string | null
+  art: GameArt
   genre: string
 }
 
@@ -17,7 +18,8 @@ export function useRecentGames(): {
   remember: (game: GameDetails) => void
 } {
   const [recent, setRecent] = useLocalStorage<RecentGame[]>({
-    key: 'recent-games',
+    // v2: entries are keyed by Steam app id (v1 held RAWG slugs).
+    key: 'recent-games-v2',
     defaultValue: [],
     getInitialValueInEffect: false
   })
@@ -27,12 +29,12 @@ export function useRecentGames(): {
       setRecent((previous) =>
         [
           {
-            slug: game.slug,
+            id: game.id,
             name: game.name,
-            image: game.background_image,
-            genre: game.genres[0]?.name ?? ''
+            art: game.art,
+            genre: game.genres[0] ?? game.tags[0] ?? ''
           },
-          ...(previous ?? []).filter((item) => item.slug !== game.slug)
+          ...(previous ?? []).filter((item) => item.id !== game.id)
         ].slice(0, MAX_RECENT)
       ),
     [setRecent]

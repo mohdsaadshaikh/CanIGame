@@ -271,7 +271,7 @@ const AboutPC = (): React.JSX.Element => {
         ) : (
           <div className={classes.grid}>
             {Array.from({ length: 4 }, (_, i) => (
-              <Skeleton key={i} height={220} radius={16} />
+              <Skeleton key={i} height={220} radius="lg" />
             ))}
           </div>
         )}

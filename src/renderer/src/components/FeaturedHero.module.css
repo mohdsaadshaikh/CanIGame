@@ -1,5 +1,5 @@
 /*
- * Featured hero with no frame: the key art covers the right of the section and fades into
+ * Featured hero (DESIGN.md) with no frame: the key art covers the right of the section and fades into
  * the page on every edge, the copy sits straight on the page, and the featured games run
  * below as bare art thumbnails. Auto-advance is driven by the active thumbnail's progress
  * animation (`onAnimationEnd`), so pausing the animation pauses the carousel.
@@ -72,13 +72,13 @@
   gap: 32px;
   min-height: 420px;
   padding: 24px 0;
-  animation: content-in 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: content-in 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes content-in {
   from {
     opacity: 0.001;
-    transform: translateY(8px);
+    transform: translateY(24px);
   }
   to {
     opacity: 1;
@@ -86,17 +86,24 @@
   }
 }
 
+/* Box art on a gradient plate: the 4px of plate showing at the foot is the accent stripe. */
 .cover {
   flex-shrink: 0;
-  width: 176px;
+  width: 184px;
   aspect-ratio: 3 / 4;
   overflow: hidden;
-  border-radius: 16px;
-  background: var(--cig-raised);
-  box-shadow: 0 28px 56px -18px rgba(4, 7, 16, 0.85);
+  padding-bottom: 4px;
+  background: var(--cig-accent-gradient);
+  transform: rotate(-2deg);
+  transition: transform 260ms var(--cig-pop);
+}
+
+.content:hover .cover {
+  transform: rotate(0deg) scale(1.02);
 }
 
 .cover img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -110,20 +117,29 @@
 .chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 14px;
+  gap: 8px;
+  margin: 0 0 16px 4px;
 }
 
+/* Skewed tags; content is counter-skewed (DESIGN.md rule 1). */
 .chip {
   display: inline-flex;
   align-items: center;
-  height: 24px;
-  padding: 0 10px;
-  border-radius: 999px;
-  background: var(--cig-raised);
-  font-size: 12px;
-  font-weight: 600;
+  height: 26px;
+  padding: 0 12px;
+  transform: skewX(var(--cig-skew));
+  background: rgba(30, 40, 64, 0.85);
+  font-family: var(--cig-display);
+  font-size: 15px;
+  font-style: italic;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   color: var(--cig-silk);
+}
+
+.chip > span {
+  transform: skewX(calc(var(--cig-skew) * -1));
 }
 
 .chip:first-child {
@@ -134,10 +150,12 @@
 .title {
   margin: 0;
   font-family: var(--cig-display);
-  font-size: clamp(44px, 4.8vw, 76px);
-  font-weight: 800;
-  line-height: 0.9;
-  letter-spacing: 0.005em;
+  font-size: clamp(52px, 5.6vw, 88px);
+  font-style: italic;
+  font-weight: 900;
+  line-height: 0.86;
+  letter-spacing: 0;
+  padding-right: 8px;
   text-transform: uppercase;
   text-wrap: balance;
   color: var(--cig-silk);
@@ -165,8 +183,19 @@
 .stats {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px 36px;
-  margin: 22px 0 26px;
+  gap: 12px 0;
+  margin: 24px 0 28px;
+}
+
+/* Hairline dividers between stats, Valorant stat-block style. */
+.stats > div {
+  padding: 0 28px;
+  border-left: 1px solid var(--cig-hairline-strong);
+}
+
+.stats > div:first-child {
+  padding-left: 0;
+  border-left: 0;
 }
 
 .statValue {
@@ -174,21 +203,26 @@
   align-items: center;
   gap: 6px;
   font-family: var(--cig-display);
-  font-size: 30px;
-  font-weight: 700;
-  line-height: 1;
+  font-size: 40px;
+  font-style: italic;
+  font-weight: 900;
+  line-height: 0.9;
   font-variant-numeric: tabular-nums;
   color: var(--cig-silk);
+  padding-right: 4px;
 }
 
 .star {
-  color: #ffd43b;
+  color: var(--cig-accent);
 }
 
 .statLabel {
-  margin-top: 4px;
-  font-size: 13px;
-  font-weight: 600;
+  margin-top: 6px;
+  font-family: var(--mantine-font-family-monospace);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
   color: var(--cig-accent);
 }
 
@@ -227,37 +261,47 @@
   outline: none;
 }
 
+/* Chamfered thumbnail; the selection ring is drawn inside it because clip-path cuts outlines. */
 .cardArt {
+  position: relative;
   display: block;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border-radius: 12px;
   background: var(--cig-raised);
-  outline: 2px solid transparent;
-  outline-offset: 3px;
-  opacity: 0.6;
+  opacity: 0.55;
   transition:
-    opacity 200ms ease,
-    outline-color 200ms ease,
-    transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 180ms var(--cig-ease),
+    transform 220ms var(--cig-pop);
+}
+
+.cardArt::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 2px transparent;
+  transition: box-shadow 180ms var(--cig-ease);
 }
 
 .card:hover .cardArt {
   opacity: 0.9;
-  transform: translateY(-2px);
+  transform: translateY(-4px);
 }
 
-.card[data-active] .cardArt {
-  opacity: 1;
-  outline-color: var(--cig-accent-fill);
-}
-
+.card[data-active] .cardArt,
 .card:focus-visible .cardArt {
   opacity: 1;
-  outline-color: var(--cig-accent);
+}
+
+.card[data-active] .cardArt::after {
+  box-shadow: inset 0 0 0 2px var(--cig-accent);
+}
+
+.card:focus-visible .cardArt::after {
+  box-shadow: inset 0 0 0 3px var(--cig-silk);
 }
 
 .cardArt img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -265,9 +309,13 @@
 
 .cardName {
   margin-top: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.25;
+  font-family: var(--cig-display);
+  font-size: 18px;
+  font-style: italic;
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+  padding-right: 4px;
   color: var(--cig-silk-2);
   overflow: hidden;
   white-space: nowrap;
@@ -295,14 +343,13 @@
   height: 3px;
   margin-top: 10px;
   overflow: hidden;
-  border-radius: 999px;
   background: var(--cig-seam);
 }
 
 .cardFill {
   display: block;
   height: 100%;
-  background: var(--cig-accent-fill);
+  background: var(--cig-accent-gradient);
   transform-origin: left;
   animation: progress var(--slide-duration) linear forwards;
 }
@@ -359,6 +406,12 @@
   .cardFill,
   .content {
     animation: none;
+  }
+
+  .cover,
+  .content:hover .cover {
+    transform: none;
+    transition: none;
   }
 
   .artImage,

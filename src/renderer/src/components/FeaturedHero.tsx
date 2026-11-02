@@ -1,9 +1,10 @@
 import { ActionIcon, Button } from '@mantine/core'
-import { rawgImage } from '@renderer/utils/images'
+import { compactNumber, releaseShort } from '@renderer/utils/games'
 import type { Game } from '@shared/types/games'
-import { IconChevronLeft, IconChevronRight, IconStarFilled } from '@tabler/icons-react'
+import { IconChevronLeft, IconChevronRight, IconThumbUpFilled } from '@tabler/icons-react'
 import { useEffect, useState, type CSSProperties } from 'react'
 import classes from './FeaturedHero.module.css'
+import { SteamImage } from './SteamImage'
 
 const SLIDE_DURATION_MS = 8000
 const DESCRIPTION_MAX = 170
@@ -19,7 +20,7 @@ interface FeaturedHeroProps {
  * List results carry no description, so the active game's detail record is fetched once
  * (main caches it on disk too) and trimmed to its first sentence or two.
  */
-const descriptions = new Map<string, string>()
+const descriptions = new Map<number, string>()
 
 function summarise(text: string): string {
   const clean = text.replace(/\s+/g, ' ').trim()
@@ -33,33 +34,23 @@ function summarise(text: string): string {
   return (out || `${clean.slice(0, DESCRIPTION_MAX).replace(/\s+\S*$/, '')}...`).trim()
 }
 
-function useDescription(slug: string | undefined): string | undefined {
+function useDescription(appId: number | undefined): string | undefined {
   const [, force] = useState(0)
   useEffect(() => {
-    if (!slug || descriptions.has(slug)) return
+    if (appId === undefined || descriptions.has(appId)) return
     let cancelled = false
     window.api
-      .getGameBySlug(slug)
+      .getGame(appId)
       .then((details) => {
-        descriptions.set(slug, summarise(details.description_raw ?? ''))
+        descriptions.set(appId, summarise(details.shortDescription || details.about))
         if (!cancelled) force((n) => n + 1)
       })
-      .catch(() => descriptions.set(slug, ''))
+      .catch(() => descriptions.set(appId, ''))
     return () => {
       cancelled = true
     }
-  }, [slug])
-  return slug ? descriptions.get(slug) : undefined
-}
-
-const compact = new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 })
-
-function releaseLabel(released: string | null): string {
-  if (!released) return 'TBA'
-  const date = new Date(released)
-  return date.getTime() > Date.now()
-    ? date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-    : String(date.getFullYear())
+  }, [appId])
+  return appId === undefined ? undefined : descriptions.get(appId)
 }
 
 export function FeaturedHero({
@@ -74,7 +65,7 @@ export function FeaturedHero({
   const count = games.length
   const index = Math.min(activeIndex, Math.max(count - 1, 0))
   const active: Game | undefined = games[index]
-  const description = useDescription(active?.slug)
+  const description = useDescription(active?.id)
 
   useEffect(() => {
     if (active) onActiveChange?.(active)
@@ -86,18 +77,20 @@ export function FeaturedHero({
   const goTo = (next: number): void => setActiveIndex(((next % count) + count) % count)
 
   const stats: { value: React.ReactNode; label: string }[] = [
-    active.rating > 0 && {
+    active.review && {
       value: (
         <>
-          <IconStarFilled size={18} className={classes.star} aria-hidden />
-          {active.rating.toFixed(1)}
+          <IconThumbUpFilled size={18} className={classes.star} aria-hidden />
+          {active.review.positivePct}%
         </>
       ),
-      label: 'Player rating'
+      label: active.review.label
     },
-    active.metacritic != null && { value: active.metacritic, label: 'Metacritic' },
-    active.playtime > 0 && { value: `${active.playtime}h`, label: 'Avg playtime' },
-    active.added > 0 && { value: compact.format(active.added), label: 'Players added it' }
+    active.review && { value: compactNumber.format(active.review.total), label: 'Steam reviews' },
+    active.price && {
+      value: active.discountPct > 0 ? `${active.price} (-${active.discountPct}%)` : active.price,
+      label: active.comingSoon ? 'Pre-order' : 'Price'
+    }
   ].filter(Boolean) as { value: React.ReactNode; label: string }[]
 
   return (
@@ -119,10 +112,10 @@ export function FeaturedHero({
       <div className={classes.stage}>
         <div className={classes.art} aria-hidden="true">
           {games.map((game, i) => (
-            <img
+            <SteamImage
               key={game.id}
-              src={rawgImage(game.background_image, 'full')}
-              alt=""
+              art={game.art}
+              kind="hero"
               className={classes.artImage}
               data-active={i === index || undefined}
               draggable={false}
@@ -148,17 +141,21 @@ export function FeaturedHero({
           aria-label={`${index + 1} of ${count}`}
           aria-live={paused ? 'polite' : 'off'}
         >
-          <div className={classes.cover}>
-            <img src={rawgImage(active.background_image, 640)} alt="" draggable={false} />
+          <div className={`${classes.cover} cig-cut`}>
+            <SteamImage art={active.art} kind="portrait" draggable={false} />
           </div>
 
           <div className={classes.copy}>
             <div className={classes.chips}>
-              <span className={classes.chip}>PC</span>
-              <span className={classes.chip}>{releaseLabel(active.released)}</span>
-              {active.genres.slice(0, 2).map((genre) => (
-                <span key={genre.id} className={classes.chip}>
-                  {genre.name}
+              <span className={classes.chip}>
+                <span>PC</span>
+              </span>
+              <span className={classes.chip}>
+                <span>{releaseShort(active)}</span>
+              </span>
+              {active.tags.slice(0, 2).map((tag) => (
+                <span key={tag} className={classes.chip}>
+                  <span>{tag}</span>
                 </span>
               ))}
             </div>
@@ -194,20 +191,12 @@ export function FeaturedHero({
               data-active={isActive || undefined}
               onClick={() => goTo(i)}
             >
-              <span className={classes.cardArt}>
-                <img
-                  src={rawgImage(game.background_image, 420)}
-                  alt=""
-                  loading="lazy"
-                  draggable={false}
-                />
+              <span className={`${classes.cardArt} cig-cut-sm`}>
+                <SteamImage art={game.art} kind="capsule" loading="lazy" draggable={false} />
               </span>
               <span className={classes.cardName}>{game.name}</span>
               <span className={classes.cardMeta}>
-                {game.genres
-                  .slice(0, 2)
-                  .map((genre) => genre.name)
-                  .join(', ') || releaseLabel(game.released)}
+                {game.tags.slice(0, 2).join(', ') || releaseShort(game)}
               </span>
               <span className={classes.cardTrack} aria-hidden="true">
                 {isActive && count > 1 && (

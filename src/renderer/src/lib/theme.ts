@@ -13,10 +13,10 @@ import {
 } from '@mantine/core'
 
 /*
- * Visual world (see the surface brief in .impeccable/ and DESIGN.md): a game launcher
- * where the rig is the player profile. Deep navy ground and tinted navy panels with
- * soft 12-16px corners, orange #ED541B as the single accent, copper for hardware
- * designators, Barlow Condensed caps for headings and stats. Game art supplies colour.
+ * "Overclock" (DESIGN.md): Fortnite's loud italic display type and bounce on Valorant's sharp,
+ * square geometry. Deep navy ground, chamfered square panels, skewed controls, orange #ED541B as
+ * the single accent (always a gradient), Barlow Condensed italic caps for display. Game art
+ * supplies colour.
  */
 
 /** Primary action fill: bright orange into deep ember. White label sits on the darker half (4.6-6.3:1). */
@@ -38,11 +38,11 @@ export const mantineTheme: MantineThemeOverride = createTheme({
   fontFamilyMonospace: "'Martian Mono', ui-monospace, Consolas, monospace",
   headings: {
     fontFamily: "'Barlow Condensed', Barlow, system-ui, sans-serif",
-    fontWeight: '700',
+    fontWeight: '900',
     sizes: {
-      h1: { fontSize: rem(36), lineHeight: '1' },
-      h2: { fontSize: rem(26), lineHeight: '1.05' },
-      h3: { fontSize: rem(20), lineHeight: '1.1' }
+      h1: { fontSize: rem(56), lineHeight: '0.9' },
+      h2: { fontSize: rem(34), lineHeight: '0.95' },
+      h3: { fontSize: rem(24), lineHeight: '1' }
     }
   },
   fontSizes: {
@@ -59,9 +59,10 @@ export const mantineTheme: MantineThemeOverride = createTheme({
     lg: rem('24px'),
     xl: rem('32px')
   },
-  // Shape lock: controls 8px, cards and panels 12-16px, pills fully round.
-  radius: { xs: rem('4px'), sm: rem('8px'), md: rem('12px'), lg: rem('16px'), xl: rem('20px') },
-  defaultRadius: 'sm',
+  // Shape lock (DESIGN.md): surfaces are square and get their character from chamfer cuts
+  // (`.cig-cut`), not rounding. 2px on small controls, 4px max for menus and tooltips.
+  radius: { xs: rem('0px'), sm: rem('2px'), md: rem('2px'), lg: rem('3px'), xl: rem('4px') },
+  defaultRadius: 'xs',
   shadows: {
     xs: '0 1px 2px rgba(4, 7, 16, 0.4)',
     sm: '0 4px 12px -4px rgba(4, 7, 16, 0.5)',
@@ -119,7 +120,7 @@ export const mantineTheme: MantineThemeOverride = createTheme({
     Paper: Paper.extend({ defaultProps: { p: 'md', radius: 'md', withBorder: true } }),
     Card: Card.extend({ defaultProps: { p: 'lg', radius: 'md', withBorder: true } }),
     Button: Button.extend({
-      defaultProps: { fw: 600, radius: 'xl' },
+      defaultProps: { radius: 'xs' },
       // Filled primary buttons take the accent gradient with a white label.
       vars: (_theme, props) =>
         (props.variant ?? 'filled') === 'filled' && (props.color ?? 'orange') === 'orange'
@@ -133,8 +134,8 @@ export const mantineTheme: MantineThemeOverride = createTheme({
             }
           : { root: {} }
     }),
-    ActionIcon: ActionIcon.extend({ defaultProps: { variant: 'default', radius: 'xl' } }),
-    Badge: Badge.extend({ defaultProps: { radius: 'xl' } }),
+    ActionIcon: ActionIcon.extend({ defaultProps: { variant: 'default', radius: 'xs' } }),
+    Badge: Badge.extend({ defaultProps: { radius: 'xs' } }),
     Select: Select.extend({ defaultProps: { checkIconPosition: 'right' } })
   }
 })
@@ -147,7 +148,12 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
   variables: {
     '--cig-accent-fill': '#ED541B',
     '--cig-accent-gradient': ACCENT_GRADIENT,
-    '--cig-display': "'Barlow Condensed', Barlow, system-ui, sans-serif"
+    '--cig-display': "'Barlow Condensed', Barlow, system-ui, sans-serif",
+    '--cig-cut': '14px',
+    '--cig-cut-sm': '8px',
+    '--cig-skew': '-8deg',
+    '--cig-pop': 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+    '--cig-ease': 'cubic-bezier(0.65, 0, 0.35, 1)'
   },
   dark: {
     '--cig-shell': '#0C111D',
@@ -164,6 +170,8 @@ export const cssVariablesResolver: CSSVariablesResolver = () => ({
     '--cig-accent': '#FF7A45',
     '--cig-accent-wash': 'rgba(237, 84, 27, 0.16)',
     '--cig-edge': 'rgba(255, 255, 255, 0.06)',
+    '--cig-hairline': 'rgba(255, 255, 255, 0.08)',
+    '--cig-hairline-strong': 'rgba(255, 255, 255, 0.16)',
     '--cig-ambient-opacity': '0.55',
     '--mantine-color-body': '#0F1524',
     '--mantine-color-text': '#EEF1F7',

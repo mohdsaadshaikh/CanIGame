@@ -1,8 +1,8 @@
 import { ipcMain, type BrowserWindow, type IpcMainInvokeEvent } from 'electron'
-import { IPC_CHANNELS, isValidGameSlug, isValidGamesQuery, isWindowAction } from '@shared/ipc'
+import { IPC_CHANNELS, isValidGameId, isValidGamesQuery, isWindowAction } from '@shared/ipc'
 import { clearCache } from './lib/cache'
 import { isOwnRendererUrl } from './lib/security'
-import { getGameBySlug, getGames } from './services/apis'
+import { getGame, getGames } from './services/apis'
 import { getHardwareInfo } from './services/hardwareInfo'
 import { getLiveStats } from './services/liveStats'
 import { readNvidiaGpu } from './services/nvidia'
@@ -66,9 +66,9 @@ export function registerIpcHandlers(getMainWindow: () => BrowserWindow | null): 
     return clearCache()
   })
 
-  ipcMain.handle(IPC_CHANNELS.GET_GAME_BY_SLUG, (event, slug: unknown) => {
+  ipcMain.handle(IPC_CHANNELS.GET_GAME, (event, appId: unknown) => {
     assertTrustedSender(event)
-    if (!isValidGameSlug(slug)) throw new Error('Invalid game slug')
-    return getGameBySlug(slug)
+    if (!isValidGameId(appId)) throw new Error('Invalid game id')
+    return getGame(appId)
   })
 }

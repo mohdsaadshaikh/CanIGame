@@ -4,8 +4,8 @@ import { promises as fs } from 'fs'
 import { join } from 'path'
 
 /**
- * Stale-while-revalidate cache for RAWG responses, in memory and on disk
- * (`<userData>/rawg-cache`), so results survive restarts and repeat views are instant.
+ * Stale-while-revalidate cache for Steam store responses, in memory and on disk
+ * (`<userData>/steam-cache`), so results survive restarts and repeat views are instant.
  *
  * - fresh   (age < freshMs):    returned as is, no network.
  * - stale   (age < maxStaleMs): returned immediately; a background refresh updates the cache.
@@ -30,7 +30,9 @@ const DAY = 24 * HOUR
 export const CACHE_POLICIES = {
   list: { freshMs: 30 * MINUTE, maxStaleMs: 3 * DAY },
   search: { freshMs: DAY, maxStaleMs: 7 * DAY },
-  details: { freshMs: DAY, maxStaleMs: 30 * DAY }
+  details: { freshMs: DAY, maxStaleMs: 30 * DAY },
+  /** Steam tag names barely change. */
+  tags: { freshMs: 7 * DAY, maxStaleMs: 30 * DAY }
 } satisfies Record<string, CachePolicy>
 
 /** Disk entries older than this are deleted at startup. */
@@ -40,9 +42,16 @@ const MAX_MEMORY_ENTRIES = 300
 const memory = new Map<string, Entry<unknown>>()
 const inFlight = new Map<string, Promise<unknown>>()
 
-const cacheDir = (): string => join(app.getPath('userData'), 'rawg-cache')
+const cacheDir = (): string => join(app.getPath('userData'), 'steam-cache')
+/** Left behind by versions that used RAWG; its entries have a different shape. */
+const legacyCacheDir = (): string => join(app.getPath('userData'), 'rawg-cache')
+/**
+ * Bump when the shape of cached data changes (e.g. a field added to `Game`). Entries written
+ * under another version are never read again and age out through `pruneCache`.
+ */
+const SCHEMA_VERSION = 3
 const fileFor = (key: string): string =>
-  join(cacheDir(), `${createHash('sha1').update(key).digest('hex')}.json`)
+  join(cacheDir(), `${createHash('sha1').update(`v${SCHEMA_VERSION}:${key}`).digest('hex')}.json`)
 
 /** Least-recently-used: re-inserting moves a key to the end; the oldest falls off the front. */
 function remember(key: string, entry: Entry<unknown>): void {
@@ -116,6 +125,7 @@ export async function cached<T>(
 
 /** Deletes on-disk entries past the retention window. Safe to call without awaiting. */
 export async function pruneCache(): Promise<void> {
+  await fs.rm(legacyCacheDir(), { recursive: true, force: true }).catch(() => undefined)
   try {
     const dir = cacheDir()
     const now = Date.now()

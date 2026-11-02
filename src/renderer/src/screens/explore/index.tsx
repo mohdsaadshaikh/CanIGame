@@ -1,14 +1,13 @@
-import { ActionIcon, Alert, Button, Group, Loader, Select, Text, TextInput } from '@mantine/core'
+import { ActionIcon, Alert, Button, Group, Loader, Text, TextInput } from '@mantine/core'
 import { useDebouncedValue, useIntersection, useLocalStorage } from '@mantine/hooks'
 import { GamesGrid, type ViewMode } from '@renderer/components/GamesGrid'
-import { isoDate } from '@renderer/utils/dates'
 import { getErrorMessage } from '@renderer/utils/errors'
 import { getScrollTop, scrollRoot, scrollToTop } from '@renderer/utils/scroll'
-import type { GameOrdering, GamesQuery } from '@shared/ipc'
+import type { GameList, GamesQuery } from '@shared/ipc'
 import type { Game } from '@shared/types/games'
 import {
   IconAlertTriangle,
-  IconAward,
+  IconGift,
   IconLayoutGrid,
   IconList,
   IconRefresh,
@@ -26,23 +25,19 @@ const PREFETCH_MARGIN = '800px'
 // Filters
 // ---------------------------------------------------------------------------
 
-type Sort = 'popular' | 'critics' | 'new' | 'name'
-type Released = 'any' | 'year' | 'five' | 'classic'
-
 interface Filters {
-  sort: Sort
-  released: Released
-  genre: string | null
-  acclaimed: boolean
+  list: GameList
+  /** Steam tag id, or null for every genre. */
+  tag: number | null
+  free: boolean
   /** Normalised search text; empty means no search. */
   search: string
 }
 
 const DEFAULT_FILTERS: Filters = {
-  sort: 'popular',
-  released: 'any',
-  genre: null,
-  acclaimed: false,
+  list: 'topsellers',
+  tag: null,
+  free: false,
   search: ''
 }
 
@@ -52,56 +47,40 @@ const DEFAULT_FILTERS: Filters = {
  */
 const SEARCH_MIN_LENGTH = 3
 const SEARCH_DEBOUNCE_MS = 600
-const normaliseSearch = (text: string): string => text.trim().toLowerCase().replace(/\s+/g, ' ')
+const normaliseSearch = (text: string): string => text.trim().toLowerCase().replace(/s+/g, ' ')
 
-const SORTS: { value: Sort; label: string; ordering: GameOrdering }[] = [
-  { value: 'popular', label: 'Popular', ordering: '-added' },
-  { value: 'critics', label: "Critics' picks", ordering: '-metacritic' },
-  { value: 'new', label: 'New releases', ordering: '-released' },
-  { value: 'name', label: 'A-Z', ordering: 'name' }
+const LISTS: { value: GameList; label: string }[] = [
+  { value: 'topsellers', label: 'Top sellers' },
+  { value: 'trending', label: 'New and trending' },
+  { value: 'toprated', label: 'Top rated' },
+  { value: 'specials', label: 'On sale' },
+  { value: 'upcoming', label: 'Upcoming' }
 ]
 
-const RELEASED: { value: Released; label: string }[] = [
-  { value: 'any', label: 'Any release date' },
-  { value: 'year', label: 'Last 12 months' },
-  { value: 'five', label: 'Last 5 years' },
-  { value: 'classic', label: 'Classics (before 2010)' }
-]
-
-/** RAWG genre slugs, verified against GET /genres. */
-const GENRES: { slug: string; label: string }[] = [
-  { slug: 'action', label: 'Action' },
-  { slug: 'role-playing-games-rpg', label: 'RPG' },
-  { slug: 'shooter', label: 'Shooter' },
-  { slug: 'adventure', label: 'Adventure' },
-  { slug: 'strategy', label: 'Strategy' },
-  { slug: 'indie', label: 'Indie' },
-  { slug: 'simulation', label: 'Simulation' },
-  { slug: 'racing', label: 'Racing' },
-  { slug: 'sports', label: 'Sports' },
-  { slug: 'platformer', label: 'Platformer' },
-  { slug: 'puzzle', label: 'Puzzle' },
-  { slug: 'fighting', label: 'Fighting' },
-  { slug: 'massively-multiplayer', label: 'MMO' },
-  { slug: 'casual', label: 'Casual' }
+/** Steam tag ids, verified against /tagdata/populartags/english. */
+const GENRES: { tag: number; label: string }[] = [
+  { tag: 19, label: 'Action' },
+  { tag: 122, label: 'RPG' },
+  { tag: 1774, label: 'Shooter' },
+  { tag: 21, label: 'Adventure' },
+  { tag: 1695, label: 'Open World' },
+  { tag: 9, label: 'Strategy' },
+  { tag: 492, label: 'Indie' },
+  { tag: 599, label: 'Simulation' },
+  { tag: 1662, label: 'Survival' },
+  { tag: 1667, label: 'Horror' },
+  { tag: 699, label: 'Racing' },
+  { tag: 701, label: 'Sports' },
+  { tag: 1625, label: 'Platformer' },
+  { tag: 1664, label: 'Puzzle' },
+  { tag: 1743, label: 'Fighting' },
+  { tag: 597, label: 'Casual' }
 ]
 
 function toQuery(filters: Filters, page: number): GamesQuery {
-  const sort = SORTS.find((s) => s.value === filters.sort) ?? SORTS[0]
-  const today = isoDate(0)
-  const query: GamesQuery = { page, pcOnly: true, ordering: sort.ordering }
-
-  if (filters.released === 'year') query.dates = `${isoDate(-365)},${today}`
-  else if (filters.released === 'five') query.dates = `${isoDate(-1826)},${today}`
-  else if (filters.released === 'classic') query.dates = '1980-01-01,2009-12-31'
-  // "Newest" without a window would surface unreleased placeholders; stop at today.
-  else if (filters.sort === 'new') query.dates = `1980-01-01,${today}`
-
-  if (filters.acclaimed) query.metacritic = '75,100'
-  // Sorting by score only makes sense among games that have one.
-  else if (filters.sort === 'critics') query.metacritic = '1,100'
-
-  if (filters.genre) query.genre = filters.genre
+  const query: GamesQuery = { page, list: filters.list }
+  if (filters.tag !== null) query.tag = filters.tag
+  if (filters.free) query.free = true
   if (filters.search) query.search = filters.search
   return query
 }
@@ -166,13 +145,13 @@ const Explore = (): React.JSX.Element => {
       if (generation !== requestGeneration.current) return
 
       setGames((previous) => {
-        // RAWG pages can overlap when its ordering shifts between requests; drop duplicates.
+        // Steam pages can overlap when its ranking shifts between requests; drop duplicates.
         const base = isFirstPage ? [] : previous
         const seen = new Set(base.map((game) => game.id))
-        return [...base, ...(data.results ?? []).filter((game) => !seen.has(game.id))]
+        return [...base, ...data.games.filter((game) => !seen.has(game.id))]
       })
-      if (isFirstPage) setCount(data.count)
-      setNextPage(data.next ? page + 1 : null)
+      if (isFirstPage) setCount(data.total)
+      setNextPage(data.hasMore ? page + 1 : null)
     } catch (err) {
       if (generation !== requestGeneration.current) return
       setError(getErrorMessage(err, 'Failed to load games.'))
@@ -307,41 +286,31 @@ const Explore = (): React.JSX.Element => {
                 </ActionIcon>
               ) : null
             }
-            radius="xl"
+            radius="sm"
           />
-          <div className={classes.segment} role="radiogroup" aria-label="Sort by">
-            {SORTS.map((sort) => (
+          <div className={classes.segment} role="radiogroup" aria-label="List">
+            {LISTS.map((list) => (
               <button
-                key={sort.value}
+                key={list.value}
                 type="button"
                 role="radio"
-                aria-checked={filters.sort === sort.value}
+                aria-checked={filters.list === list.value}
                 className={classes.segmentButton}
-                onClick={() => update({ sort: sort.value })}
+                onClick={() => update({ list: list.value })}
               >
-                {sort.label}
+                {list.label}
               </button>
             ))}
           </div>
           <div className={classes.spacer} />
-          <Select
-            className={classes.select}
-            aria-label="Release date"
-            data={RELEASED}
-            value={filters.released}
-            onChange={(value) => value && update({ released: value as Released })}
-            allowDeselect={false}
-            radius="xl"
-            comboboxProps={{ radius: 'md' }}
-          />
           <button
             type="button"
             className={classes.toggle}
-            aria-pressed={filters.acclaimed}
-            onClick={() => update({ acclaimed: !filters.acclaimed })}
+            aria-pressed={filters.free}
+            onClick={() => update({ free: !filters.free })}
           >
-            <IconAward size={16} />
-            Metacritic 75+
+            <IconGift size={16} />
+            Free to play
           </button>
         </div>
 
@@ -349,18 +318,18 @@ const Explore = (): React.JSX.Element => {
           <button
             type="button"
             className={classes.genre}
-            aria-pressed={filters.genre === null}
-            onClick={() => update({ genre: null })}
+            aria-pressed={filters.tag === null}
+            onClick={() => update({ tag: null })}
           >
             All genres
           </button>
           {GENRES.map((genre) => (
             <button
-              key={genre.slug}
+              key={genre.tag}
               type="button"
               className={classes.genre}
-              aria-pressed={filters.genre === genre.slug}
-              onClick={() => update({ genre: filters.genre === genre.slug ? null : genre.slug })}
+              aria-pressed={filters.tag === genre.tag}
+              onClick={() => update({ tag: filters.tag === genre.tag ? null : genre.tag })}
             >
               {genre.label}
             </button>
@@ -387,8 +356,8 @@ const Explore = (): React.JSX.Element => {
         <div className={classes.empty}>
           <div className={classes.emptyTitle}>No games match</div>
           <div className={classes.emptyText}>
-            Nothing on PC fits this search and these filters. Try another spelling, loosen the
-            release window or pick another genre.
+            Nothing on Steam fits this search and these filters. Try another spelling, another list
+            or another genre.
           </div>
           {filtered && (
             <Button
@@ -408,7 +377,7 @@ const Explore = (): React.JSX.Element => {
             games={games}
             loading={initialLoading}
             viewMode={viewMode}
-            onGameClick={(game) => navigate(`/game/${game.slug}`)}
+            onGameClick={(game) => navigate(`/game/${game.id}`)}
           />
 
           {/* Invisible trigger for the next page. Kept mounted so the observer stays attached. */}

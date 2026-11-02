@@ -1,15 +1,15 @@
 import { NAV_SECTIONS, links } from '@renderer/constants'
 import { useGames } from '@renderer/hooks/useGames'
 import { useRecentGames, type RecentGame } from '@renderer/hooks/useRecentGames'
-import { rawgImage } from '@renderer/utils/images'
 import type { GamesQuery } from '@shared/ipc'
 import { Link, NavLink } from 'react-router-dom'
 import { RigCard } from './RigCard'
 import classes from './Sidebar.module.css'
+import { SteamImage } from './SteamImage'
 
 const SIDEBAR_GAMES = 5
-// Stable object, so useGames' cache key never changes between renders.
-const POPULAR_QUERY: GamesQuery = { ordering: '-added', pcOnly: true, pageSize: SIDEBAR_GAMES }
+// Same query as Home's top sellers, so both share one cached request.
+const POPULAR_QUERY: GamesQuery = { list: 'topsellers' }
 
 const Sidebar = (): React.JSX.Element => {
   const { recent } = useRecentGames()
@@ -20,10 +20,10 @@ const Sidebar = (): React.JSX.Element => {
   const games: RecentGame[] = showingRecent
     ? recent
     : popular.games.slice(0, SIDEBAR_GAMES).map((game) => ({
-        slug: game.slug,
+        id: game.id,
         name: game.name,
-        image: game.background_image,
-        genre: game.genres[0]?.name ?? ''
+        art: game.art,
+        genre: game.tags[0] ?? ''
       }))
 
   return (
@@ -64,14 +64,14 @@ const Sidebar = (): React.JSX.Element => {
         {games.length > 0 && (
           <div>
             <div className={classes.groupLabel}>
-              {showingRecent ? 'Recently viewed' : 'Popular on PC'}
+              {showingRecent ? 'Recently viewed' : 'Top sellers'}
             </div>
             <div className={classes.games}>
               {games.map((game) => (
-                <Link key={game.slug} to={`/game/${game.slug}`} className={classes.game}>
-                  <img
-                    src={rawgImage(game.image, 420)}
-                    alt=""
+                <Link key={game.id} to={`/game/${game.id}`} className={classes.game}>
+                  <SteamImage
+                    art={game.art}
+                    kind="portrait"
                     className={classes.thumb}
                     loading="lazy"
                   />

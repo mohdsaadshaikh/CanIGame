@@ -1,26 +1,34 @@
 # CanIGame
 
 Desktop app that reads your PC's CPU, GPU and memory and compares them with a game's system
-requirements from [RAWG](https://rawg.io), so you know whether a game will run before you buy it.
+requirements from the [Steam](https://store.steampowered.com) store, so you know whether a game will
+run before you buy it.
 
 Built with Electron 35, electron-vite, React 19, TypeScript and Mantine 8.
 
 ## Features
 
 - **About PC** — detects CPU, GPU, RAM, OS and system model via `systeminformation`; cached locally
-- **Explore** — browse the RAWG catalogue in grid or list view, with infinite scroll
-- **Game details** — artwork, description, genres, developers, stores and PC minimum/recommended
-  requirements
+- **Home** — featured carousel plus Steam's top sellers, new and trending, top rated, on sale and
+  coming soon
+- **Explore** — browse Steam's PC catalogue by list, genre tag or free-to-play, search it, in grid
+  or list view with infinite scroll; Ctrl/⌘+K searches from anywhere
+- **Game details** — artwork, screenshots, review score, price, description, developers and PC
+  minimum/recommended requirements
 - Dark/light/system theme, custom frameless title bar, window position memory
 
-Planned: the actual "can I run it?" verdict (requirements parser + hardware comparison), search,
+Planned: the actual "can I run it?" verdict (requirements parser + hardware comparison), more
 filters, wishlist persistence, auto-update.
+
+Future scope: a hardware sync system. The desktop app detects the rig and syncs it to the user's
+account, so a web or mobile client can show "can I run it?" verdicts without detecting hardware
+itself (browsers can't read real hardware specs, and no Steam API exposes them).
 
 ## Getting started
 
 ```bash
 npm install
-cp .env.example .env     # then paste your RAWG key (free at https://rawg.io/apidocs)
+# no API key needed: game data comes from Steam's public store endpoints
 npm run dev
 ```
 
@@ -40,7 +48,7 @@ npm run dev
 
 ```
 src/
-  main/       Electron main process: window, IPC handlers, RAWG client, hardware detection
+  main/       Electron main process: window, IPC handlers, Steam store client, hardware detection
   preload/    Sandboxed bridge exposing the typed `window.api`
   renderer/   React app (screens, components, Mantine theme)
   shared/     IPC contract and types shared by all three processes
